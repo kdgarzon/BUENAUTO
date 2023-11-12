@@ -47,7 +47,7 @@
             <input type="submit" value="Iniciar Sesión" id="btnIngresar" name="btnIngresar">
         </form>
     </div>
-    <?php include '../../config/footer.php';?>
+    <?php include '../config/footer.php';?>
     <?php
         if(isset($_POST['btnIngresar'])){
             // Obtengo los datos cargados en el formulario de login.

@@ -169,7 +169,7 @@
                 //Formulamos la sentencia SQL
                 $segundo_sql = "DELETE FROM usuario WHERE id = '".$ID_u."'";
 
-                $link->pg_query($segundo_sql);
+                pg_query($link, $segundo_sql);
                 echo "<script type='text/javascript'>
                     Swal.fire({
                         title: '¡Datos eliminados correctamente!',

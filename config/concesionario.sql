@@ -39,7 +39,7 @@ CREATE SEQUENCE Empleado_Auto
     INCREMENT 1;
 CREATE TABLE Empleado(
 	Codigo INT DEFAULT nextval('Empleado_Auto'),
-	ID_cargo INT NOT NULL,
+	ID_cargo INT,
 	ID_Sucursal INT,
 	Identificacion INT NOT NULL,
 	Nombre varchar(35) NOT NULL,
@@ -125,10 +125,10 @@ INSERT INTO Marca (Marca) VALUES ('Chevrolet');
 
 CREATE TABLE Automotor(
 	Numero_Chasis VARCHAR(20) NOT NULL,
-	ID_Color INT NOT NULL,
-	ID_Linea INT NOT NULL,
-	ID_Tipo INT NOT NULL,
-	ID_Marca INT NOT NULL,
+	ID_Color INT,
+	ID_Linea INT,
+	ID_Tipo INT,
+	ID_Marca INT,
 	Modelo INT NOT NULL,
 	Identificacion_interna VARCHAR(10),
 	Placa VARCHAR(8),
@@ -149,11 +149,11 @@ CREATE TABLE Ciudad_Residencia(
 	Ciudad varchar(25) NOT NULL,
     PRIMARY KEY (ID)
 );
-INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Bogotá D.C');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Bogota D.C');
 
 CREATE TABLE Cliente(
 	Identificacion INT NOT NULL,
-	ID_Ciudad INT NOT NULL,
+	ID_Ciudad INT,
 	Nombre varchar(60) NOT NULL,
 	Fecha_Registro DATE NOT NULL,
     PRIMARY KEY (Identificacion),
@@ -170,8 +170,8 @@ CREATE TABLE Telefono_Clie(
 INSERT INTO Telefono_Clie (ID_Cliente, Telefono) VALUES (1000472996, 7184562);
 
 CREATE TABLE Adquirir(
-	ID_Cliente INT NOT NULL,
-	ID_Automotor VARCHAR(20) NOT NULL,
+	ID_Cliente INT,
+	ID_Automotor VARCHAR(20),
     PRIMARY KEY (ID_Cliente, ID_Automotor),
 	FOREIGN KEY(ID_Cliente) REFERENCES Cliente(Identificacion) ON DELETE SET NULL ON UPDATE CASCADE,
 	FOREIGN KEY(ID_Automotor) REFERENCES Automotor(Numero_chasis) ON DELETE SET NULL ON UPDATE CASCADE
@@ -183,8 +183,8 @@ CREATE SEQUENCE Compra_Auto
     INCREMENT 1;
 CREATE TABLE Compra(
 	ID INT DEFAULT nextval('Compra_Auto'),
-    ID_Cliente INT NOT NULL,
-    ID_Sucursal INT NOT NULL,
+    ID_Cliente INT,
+    ID_Sucursal INT,
     Fecha_Compra DATE NOT NULL,
 	Valor FLOAT NOT NULL,
     PRIMARY KEY (ID),

@@ -1,7 +1,7 @@
 <header>
     <nav class="navbar navbar-expand-lg" style = "background-color:#4682B4">
         <div class="container-fluid">
-            <a class="navbar-brand d-flex" href="PanelAdministrador.php">
+            <a class="navbar-brand d-flex" href="../Inicio/Inicio.php">
                 <img src="../../Imagenes/coche.png" alt="Logo" width="45px" height="45px" class="d-inline-block align-text-top">
                 <h1 class="titulo_logotipo">BUENAUTO</h1>
             </a>

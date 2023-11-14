@@ -5,4 +5,5 @@
         session_destroy();
         header('Location:../Login/Login.php');
     //}
+    // El faraon
 ?>

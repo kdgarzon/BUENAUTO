@@ -6,4 +6,5 @@
         header('Location:../Login/Login.php');
     //}
     // El faraon
+    // Hola mundo
 ?>

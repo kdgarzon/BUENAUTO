@@ -83,6 +83,10 @@
                 <label for="txtSalario" class="form-label">Salario del empleado: </label>
                 <input type="number" class="form-control" placeholder="Salario..." id="txtSalario" name="txtSalario" required>
             </div>
+            <div class="col-md-4">
+                <label for="txtTelefono" class="form-label">Teléfono del empleado: </label>
+                <input type="number" class="form-control" placeholder="Teléfono..." id="txtTelefono" name="txtTelefono" required>
+            </div>
             <div class="col-md-2" id = "boton">
                 <input type="submit" class = "btn" style = "background-color:#A6FB7E" value = "INSERTAR" id = "btnAgregar" name = "btnAgregar">
             </div>
@@ -103,13 +107,15 @@
                 <th>Fecha de nacimiento</th>
                 <th>Fecha de ingreso</th>
                 <th>Salario</th>
+                <th>Telefono</th>
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT e.codigo, e.identificacion, e.nombre, c.cargo, s.nombre, e.fecha_nacimiento, e.fecha_ingreso, e.salario
+                $consultar = "SELECT e.codigo, e.identificacion, e.nombre, c.cargo, s.nombre, e.fecha_nacimiento, e.fecha_ingreso, e.salario, t.telefono
                     FROM Empleado e
                     JOIN Cargo c ON e.id_cargo = c.id
                     JOIN Sucursal s ON e.id_sucursal = s.id
+                    JOIN Telefono_Emp t ON e.codigo = t.id_empleado
                     ORDER BY e.codigo ASC";
                 $registros = pg_query($link, $consultar) or die('La consulta de empleados fallo: ' . pg_last_error($link));
 
@@ -123,6 +129,7 @@
                         <td><?= $fila[5]; ?></td>
                         <td><?= $fila[6]; ?></td>
                         <td><?= $fila[7]; ?></td>
+                        <td><?= $fila[8]; ?></td>
                         <td>
                             <a href="ModificarEmpleado.php?codigo=<?= $fila[0] ?>" class="btn btn-warning" style = "margin-right:7px;">
                                 <img src = "../../Imagenes/editar.png" width = "20px" height = "20px">
@@ -148,28 +155,53 @@
             $FechaNac = $_POST['txtNacimiento'];
             $FechaIngr = $_POST['txtIngreso'];
             $Salario = $_POST['txtSalario'];
+            $Telefono = $_POST['txtTelefono'];
 
             //Formulo la consulta SQL
             $sql = "INSERT INTO empleado (id_cargo, id_sucursal, identificacion, nombre, fecha_nacimiento, fecha_ingreso, salario) 
-                VALUES ('$Cargo', '$Sucursal', '$Identificacion', '$Nombre', '$FechaNac', '$FechaIngr', '$Salario' );";
-
+                VALUES ('$Cargo', '$Sucursal', '$Identificacion', '$Nombre', '$FechaNac', '$FechaIngr', '$Salario' ) RETURNING codigo;";
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));
 
             if($respuesta){
-                echo "<script type='text/javascript'>
+                $row = pg_fetch_assoc($respuesta);
+                $idEmpleado = $row['codigo'];
+        
+                // Formulo la consulta SQL para insertar en la tabla telefono_emp
+                $sqlTelefono = "INSERT INTO telefono_emp (id_empleado, telefono) VALUES ('$idEmpleado', '$Telefono');";
+        
+                $resultadoTelefono = pg_query($link, $sqlTelefono);
+        
+                if($resultadoTelefono){
+                    echo "<script type='text/javascript'>
+                        Swal.fire({
+                            title: '¡Datos insertados correctamente!',
+                            width: 600,
+                            padding: '2em',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        setTimeout(function() {
+                            window.location.href = 'GestionEmpleados.php';
+                        }, 1500);
+                    </script>";
+                }else{
+                    echo "<script type='text/javascript'>
                     Swal.fire({
-                        title: '¡Datos insertados correctamente!',
+                        title: 'ERROR!!',
+                        text :'Algo salió mal y el telefono no pudo ser insertado. Intente de nuevo.',
                         width: 600,
                         padding: '2em',
-                        icon: 'success',
+                        icon: 'error',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 1800
                     });
                     setTimeout(function() {
                         // Redirige o realiza otra acción después de cerrar la alerta
                         window.location.href = 'GestionEmpleados.php';
-                    }, 1500);
+                    }, 1800);
                 </script>";
+                }
             }else{
                 echo "<script type='text/javascript'>
                     Swal.fire({

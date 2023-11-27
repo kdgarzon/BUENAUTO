@@ -24,6 +24,14 @@
 
     $sqlSeleccionar = "SELECT * FROM empleado WHERE codigo = $ID_u";
     $registros = pg_query($link, $sqlSeleccionar) or die('La consulta de empleados fallo: ' . pg_last_error($link));
+    
+    $sqlTelefono = "SELECT * FROM Telefono_Emp WHERE id_empleado = $ID_u";
+    $Telefono = pg_query($link, $sqlTelefono) or die('La consulta de telefonos fallo: ' . pg_last_error($link));;
+    
+    $telefonoEmpleado = '';
+    while ($rowTelefono = pg_fetch_array($Telefono)) {
+        $telefonoEmpleado = $rowTelefono['telefono'];
+    }
 ?>
 
 <!DOCTYPE html>
@@ -107,6 +115,11 @@
                         <input type="number" value="<?= $fila[7]; ?>" class="form-control" id="txtSalario" name="txtSalario" placeholder="Salario..." required>
                     </div>
 
+                    <div class="mb-1">
+                        <label for="txtTelefono" class="form-label">Telefono: </label>
+                        <input type="number" value="<?= $telefonoEmpleado; ?>" class="form-control" id="txtTelefono" name="txtTelefono" placeholder="Telefono..." required>
+                    </div>
+
                 <?php } ?>
                 <div class="col-md-2 d-flex justify-content-between" id="boton">
                     <input type="submit" class="btn" style="background-color:#38A843" value="ACTUALIZAR" id="btnActualizar" name="btnActualizar">
@@ -117,7 +130,7 @@
     <?php include '../../config/footer.php';?>
     <?php
         if(isset($_POST['btnActualizar'])){
-            if(!empty($_POST['txtIdent']) && !empty($_POST['txtNombre']) && !empty($_POST['ListaCargos']) && !empty($_POST['ListaSucursales']) && !empty($_POST['txtNacimiento']) && !empty($_POST['txtIngreso']) && !empty($_POST['txtSalario'])){
+            if(!empty($_POST['txtIdent']) && !empty($_POST['txtNombre']) && !empty($_POST['ListaCargos']) && !empty($_POST['ListaSucursales']) && !empty($_POST['txtNacimiento']) && !empty($_POST['txtIngreso']) && !empty($_POST['txtSalario']) && !empty($_POST['txtTelefono'])){
                 $ID = $_POST['id'];
                 $Identificacion = $_POST['txtIdent'];
                 $Nombre = $_POST['txtNombre'];
@@ -126,13 +139,21 @@
                 $FechaNacimiento = $_POST['txtNacimiento'];
                 $FechaIngreso = $_POST['txtIngreso'];
                 $Salario = $_POST['txtSalario'];
+                $Telefono = $_POST['txtTelefono'];
 
                 $sql_actualizar = "UPDATE empleado 
                 SET id_cargo = $Cargo, id_sucursal = $Sucursal, identificacion = $Identificacion, nombre = '$Nombre', fecha_nacimiento = '$FechaNacimiento', fecha_ingreso = '$FechaIngreso', salario = $Salario
                 WHERE codigo = $ID";
                 $res = pg_query($link, $sql_actualizar) or die('La edición de datos fallo: ' . pg_last_error($link));
 
-                if($res){
+                $sqlActualizarTelefono = "UPDATE telefono_emp
+                    SET telefono = '$Telefono'
+                    WHERE id_empleado = $ID";
+
+                $resTelefono = pg_query($link, $sqlActualizarTelefono);
+
+                if($res && $resTelefono){
+
                     echo "<script type='text/javascript'>
                         Swal.fire({
                             title: '¡Los datos se actualizaron correctamente!',

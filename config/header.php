@@ -10,8 +10,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="../Inicio/Inicio.php" style = "color:#FFF" id = "item">Inicio</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../Usuarios/GestionUsuarios.php" style = "color:#FFF" id = "item">Usuarios</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style = "color:#FFF" id = "item">
+                            Usuarios
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="../Usuarios/GestionUsuarios.php">Gestión de usuarios</a></li>
+                            <li><a class="dropdown-item" href="../Usuarios/GestionRolesCargos.php">Roles y cargos</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../Sucursales/GestionSucursales.php" style = "color:#FFF" id = "item">Sucursales</a>
@@ -24,6 +30,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../Automotor/GestionAutomotores.php" style = "color:#FFF" id = "item">Automotores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../Automotor/GestionAutomotores.php" style = "color:#FFF" id = "item"></a>
                     </li>
                     <!--<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style = "color:#FFF" id = "item">

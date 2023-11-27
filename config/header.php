@@ -28,11 +28,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="../Clientes/GestionClientes.php" style = "color:#FFF" id = "item">Clientes</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../Automotor/GestionAutomotores.php" style = "color:#FFF" id = "item">Automotores</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../Automotor/GestionAutomotores.php" style = "color:#FFF" id = "item"></a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style = "color:#FFF" id = "item">
+                            Automotores
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="../Automotor/GestionAutomotores.php">Gestion de automotores</a></li>
+                            <li><a class="dropdown-item" href="../Automotor/LineaYTipo.php">Linea y tipo</a></li>
+                            <li><a class="dropdown-item" href="../Automotor/ColorYMarca.php">Color y marca</a></li>
+                        </ul>
                     </li>
                     <!--<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style = "color:#FFF" id = "item">

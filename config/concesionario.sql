@@ -352,3 +352,56 @@ CREATE TRIGGER triggerInsertarTelCliente
 AFTER INSERT ON Cliente
 FOR EACH ROW
 EXECUTE FUNCTION TelefonoClienteInsertar();
+
+/*PROCEDIMIENTOS ALMACENADOS*/
+/*Este procedimiento se encargará de calcular el valor total de todas las compras realizadas
+por un cliente sin importar el número de compras que haya realizado*/
+
+CREATE OR REPLACE FUNCTION TotalCompras()
+RETURNS TABLE (
+    ID_Cliente INT,
+    Valor_Total FLOAT
+) AS $$
+BEGIN
+    -- Seleccionar el ID del cliente y la suma de los valores de todas las compras
+    RETURN QUERY
+    SELECT ID_Cliente, COALESCE(SUM(Valor), 0) AS Valor_Total
+    FROM Compra
+    GROUP BY ID_Cliente;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT * FROM TotalCompras();
+
+/*VISTAS*/
+
+--Vista para ver el determinado cliente con su telefono asociado
+
+CREATE VIEW ClienteTelefono AS
+SELECT
+    c.Identificacion,
+    c.ID_Ciudad,
+    c.Nombre,
+    c.Fecha_Registro,
+    t.Telefono
+FROM
+    Cliente c
+LEFT JOIN
+    Telefono_Clie t ON c.Identificacion = t.ID_Cliente;
+
+--Vista para ver el determinado empleado con su telefono asociado
+CREATE VIEW EmpleadoTelefono AS
+SELECT
+    e.Codigo AS ID_Empleado,
+    e.ID_cargo,
+    e.ID_Sucursal,
+    e.Identificacion,
+    e.Nombre,
+    e.Fecha_nacimiento,
+    e.Fecha_ingreso,
+    e.Salario,
+    t.Telefono
+FROM
+    Empleado e
+LEFT JOIN
+    Telefono_Emp t ON e.Codigo = t.ID_Empleado;

@@ -375,33 +375,94 @@ SELECT * FROM TotalCompras();
 
 /*VISTAS*/
 
---Vista para ver el determinado cliente con su telefono asociado
-
-CREATE VIEW ClienteTelefono AS
+--Vista para mostrar el nombre del gerente junto a la tabla sucursal en base a su ID
+CREATE VIEW VistaGerente AS
 SELECT
-    c.Identificacion,
-    c.ID_Ciudad,
-    c.Nombre,
-    c.Fecha_Registro,
-    t.Telefono
+    s.ID,
+    s.Nombre AS Nombre_Sucursal,
+    e.Nombre AS Nombre_Gerente
 FROM
-    Cliente c
+    Sucursal s
 LEFT JOIN
-    Telefono_Clie t ON c.Identificacion = t.ID_Cliente;
+    Empleado e ON s.ID_Gerente = e.Codigo;
 
---Vista para ver el determinado empleado con su telefono asociado
-CREATE VIEW EmpleadoTelefono AS
+--Vista para mostrar el nombre de la sucursal, el telefono y el cargo en la tabla empleado con base a su ID
+CREATE OR REPLACE VIEW Vista_Empleado AS
 SELECT
-    e.Codigo AS ID_Empleado,
-    e.ID_cargo,
-    e.ID_Sucursal,
-    e.Identificacion,
-    e.Nombre,
-    e.Fecha_nacimiento,
-    e.Fecha_ingreso,
-    e.Salario,
-    t.Telefono
+    e.Codigo AS ID_Empleado, e.ID_cargo, e.ID_Sucursal, e.Identificacion,
+    e.Nombre AS Nombre_Empleado, e.Fecha_nacimiento, e.Fecha_ingreso, e.Salario,
+	s.Nombre AS Nombre_Sucursal, c.Cargo AS Nombre_Cargo, t.Telefono
 FROM
     Empleado e
 LEFT JOIN
+    Sucursal s ON e.ID_Sucursal = s.ID
+LEFT JOIN
+    Cargo c ON e.ID_cargo = c.ID
+LEFT JOIN
     Telefono_Emp t ON e.Codigo = t.ID_Empleado;
+
+--Vista para visualizar la tabla Usuario de manera cómoda
+CREATE VIEW Vista_Usuario AS
+SELECT
+    u.ID AS ID_Usuario, u.ID_empleado, u.Username,
+    u.Pass, r.Rol AS Nombre_Rol, e.Nombre AS Nombre_Empleado
+FROM
+    Usuario u
+LEFT JOIN
+    Rol r ON u.ID_Rol = r.ID
+LEFT JOIN
+    Empleado e ON u.ID_empleado = e.Codigo;
+
+--Vista general de automotor
+CREATE VIEW Vista_Automotor AS
+SELECT
+    a.Numero_Chasis, c.Color AS Nombre_Color, l.Linea AS Nombre_Linea,
+    t.Tipo AS Nombre_Tipo, m.Marca AS Nombre_Marca, a.Modelo, a.Identificacion_interna, a.Placa
+FROM
+    Automotor a
+LEFT JOIN
+    Color c ON a.ID_Color = c.ID
+LEFT JOIN
+    Linea l ON a.ID_Linea = l.ID
+LEFT JOIN
+    Tipo t ON a.ID_Tipo = t.ID
+LEFT JOIN
+    Marca m ON a.ID_Marca = m.ID;
+
+--Vista general de cliente
+CREATE VIEW Vista_Cliente AS
+SELECT
+    cl.Identificacion AS ID_Cliente, cl.Nombre AS Nombre_Cliente,
+    t.Telefono, ci.Ciudad AS Nombre_Ciudad, cl.Fecha_Registro
+FROM
+    Cliente cl
+LEFT JOIN
+    Telefono_Clie t ON cl.Identificacion = t.ID_Cliente
+LEFT JOIN
+    Ciudad_Residencia ci ON cl.ID_Ciudad = ci.ID;
+
+--Vista general de tabla adquirir
+CREATE OR REPLACE VIEW Vista_Adquirir AS
+SELECT
+    ad.ID_Cliente, ad.ID_Automotor, va.Numero_Chasis, va.Nombre_Color, va.Nombre_Linea,
+    va.Nombre_Tipo, va.Nombre_Marca, va.Modelo, va.Identificacion_interna, va.Placa,
+    vc.Nombre_Cliente, vc.Telefono, vc.Nombre_Ciudad, vc.Fecha_Registro
+FROM
+    Adquirir ad
+LEFT JOIN
+    Vista_Automotor va ON ad.ID_Automotor = va.Numero_Chasis
+LEFT JOIN
+    Vista_Cliente vc ON ad.ID_Cliente = vc.ID_Cliente;
+
+--Vista general de tabla compra
+CREATE OR REPLACE VIEW Vista_Compra AS
+SELECT
+    co.ID, co.ID_Cliente, vc.Nombre_Cliente, vc.Telefono,
+    vc.Nombre_Ciudad, vc.Fecha_Registro, co.ID_Sucursal, vg.Nombre_Sucursal,
+    vg.Nombre_Gerente, co.Fecha_Compra, co.Valor
+FROM
+    Compra co
+LEFT JOIN
+    Vista_Cliente vc ON co.ID_Cliente = vc.ID_Cliente
+LEFT JOIN
+    VistaGerente vg ON co.ID_Sucursal = vg.ID;

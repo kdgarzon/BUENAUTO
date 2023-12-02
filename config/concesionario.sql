@@ -58,7 +58,7 @@ UPDATE Sucursal SET ID_Gerente = 1001 WHERE Nombre = 'Sucursal La Floresta';
 
 CREATE TABLE Telefono_Emp(
 	ID_Empleado INT NOT NULL,
-	Telefono INT NOT NULL,
+	Telefono INT,
     PRIMARY KEY (ID_Empleado),
 	FOREIGN KEY(ID_Empleado) REFERENCES Empleado(Codigo) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -84,9 +84,9 @@ CREATE SEQUENCE Usuario_Auto
 CREATE TABLE Usuario(
 	ID INT DEFAULT nextval('Usuario_Auto'),
 	ID_empleado INT NOT NULL,
-	Username VARCHAR(15) NOT NULL,
-	Pass VARCHAR(15) NOT NULL,
-	ID_Rol INT NOT NULL,
+	Username VARCHAR(15),
+	Pass VARCHAR(15),
+	ID_Rol INT,
     PRIMARY KEY (ID),
 	FOREIGN KEY(ID_empleado) REFERENCES Empleado(Codigo) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY(ID_Rol) REFERENCES Rol(ID) ON DELETE SET NULL ON UPDATE CASCADE
@@ -192,3 +192,163 @@ CREATE TABLE Compra(
     FOREIGN KEY (ID_Sucursal) REFERENCES Sucursal (ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
 INSERT INTO Compra (ID_Cliente, ID_Sucursal, Fecha_Compra, Valor) VALUES (1000472996, 301, '2023-11-03', 44500000);
+
+/*TRIGGERS*/
+
+/*TRIGGER PARA ACTUALIZAR EL ID_GERENTE EN SUCURSAL CUANDO SE INSERTE UN NUEVO EMPLEADO*/
+--Se utiliza cuando la sucursal no tiene un gerente asignado
+CREATE OR REPLACE FUNCTION actualizarGerente()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Se verifica si la sucursal ya tiene un gerente asignado
+    IF NEW.ID_Gerente IS NOT NULL THEN
+        UPDATE Sucursal
+        SET ID_Gerente = NEW.Codigo
+        WHERE ID_Sucursal = NEW.ID_Sucursal;
+    ELSE
+        -- Si no hay gerente asignado, establecer ID_Gerente como NULL
+        UPDATE Sucursal
+        SET ID_Gerente = NULL
+        WHERE ID_Sucursal = NEW.ID_Sucursal;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER actualizarGerenteSucursal
+AFTER INSERT ON Empleado
+FOR EACH ROW
+WHEN (NEW.ID_cargo = 201)
+EXECUTE FUNCTION actualizarGerente();
+
+/*TRIGGER QUE ASIGNA SUCURSAL A EMPLEADO*/
+/*Se aplica cuando el gerente de la sucursal aún no tiene una ID_Sucursal asignada
+En caso de que no encuentre una sucursal asignada el asignará el valor de NULL*/
+
+CREATE OR REPLACE FUNCTION asignarSucursalEmp()
+RETURNS TRIGGER AS $$
+BEGIN
+    
+    SELECT ID_Sucursal INTO NEW.ID_Sucursal
+    FROM Sucursal
+    WHERE ID_Gerente = NEW.ID_Gerente;
+
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        NEW.ID_Sucursal := NULL;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigAsignarSucursalEmp
+BEFORE INSERT ON Empleado
+FOR EACH ROW
+EXECUTE FUNCTION asignarSucursalEmp();
+
+/*TRIGGER PARA CREAR UN NUEVO USUARIO DESPUÉS DE INSERTAR UN NUEVO EMPLEADO*/
+--Este trigger funcionará de manera que cuando se inserte un nuevo empleado se inserte
+--automáticamente un nuevo usuario con valores nulos que puedan ser modificados posteriormente
+
+CREATE OR REPLACE FUNCTION InsertarUsuario()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Insertar un nuevo usuario con valores nulos
+    INSERT INTO Usuario (ID_empleado, Username, Pass, ID_Rol)
+    VALUES (NEW.Codigo, NULL, NULL, NULL);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER triggerInsertarUsuario
+AFTER INSERT ON Empleado
+FOR EACH ROW
+EXECUTE FUNCTION InsertarUsuario();
+
+/*TRIGGER QUE SE ENCARGA DE ASIGNAR EL ID_SUCURSAL AL CLIENTE DEPENDIENDO DE DONDE FUE 
+SU PRIMERA COMPRA*/
+CREATE OR REPLACE FUNCTION PrimeraCompra()
+RETURNS TRIGGER AS $$
+DECLARE
+    id_PrimeraCompra INT;
+BEGIN
+    -- Obtener el ID de la sucursal de la primera compra del cliente
+    SELECT c.ID_Sucursal
+    INTO id_PrimeraCompra
+    FROM Compra c
+    WHERE c.ID_Cliente = NEW.Identificacion
+    ORDER BY c.Fecha_Compra
+    LIMIT 1;
+
+    -- Si no hay compras realizadas, obtener la sucursal según la fecha de registro del 
+	--cliente
+    IF id_PrimeraCompra IS NULL THEN
+        SELECT c.ID_Sucursal
+        INTO id_PrimeraCompra
+        FROM Compra c
+        WHERE c.ID_Cliente = NEW.Identificacion
+        ORDER BY c.Fecha_Compra
+        LIMIT 1;
+    END IF;
+
+    -- Asignar el ID de la sucursal al cliente
+    IF id_PrimeraCompra IS NOT NULL THEN
+        UPDATE Cliente
+        SET ID_Sucursal = id_PrimeraCompra
+        WHERE Identificacion = NEW.Identificacion;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER triggerPrimeraCompra
+AFTER INSERT ON Compra
+FOR EACH ROW
+EXECUTE FUNCTION PrimeraCompra();
+
+/*TRIGGER PARA INSERTAR UN NUEVO TELEFONO DESPUÉS DE INSERTAR UN NUEVO EMPLEADO*/
+CREATE OR REPLACE FUNCTION TelefonoEmpleadoInsertar()
+RETURNS TRIGGER AS $$
+BEGIN
+    
+    IF NEW.Telefono IS NOT NULL THEN
+        INSERT INTO Telefono_Emp (ID_Empleado, Telefono)
+        VALUES (NEW.Codigo, NEW.Telefono);
+    ELSE
+        INSERT INTO Telefono_Emp (ID_Empleado, Telefono)
+        VALUES (NEW.Codigo, NULL);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER triggerInsertarTel
+AFTER INSERT ON Empleado
+FOR EACH ROW
+EXECUTE FUNCTION TelefonoEmpleadoInsertar();
+
+/*TRIGGER PARA INSERTAR UN TELEFONO DE CLIENTE DESPUÉS DE INSERTAR UN NUEVO CLIENTE*/
+CREATE OR REPLACE FUNCTION TelefonoClienteInsertar()
+RETURNS TRIGGER AS $$
+BEGIN
+    
+    IF NEW.Telefono IS NOT NULL THEN
+        INSERT INTO Telefono_Clie (ID_Cliente, Telefono)
+        VALUES (NEW.Identificacion, NEW.Telefono);
+    ELSE
+        INSERT INTO Telefono_Clie (ID_Cliente, Telefono)
+        VALUES (NEW.Identificacion, NULL);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER triggerInsertarTelCliente
+AFTER INSERT ON Cliente
+FOR EACH ROW
+EXECUTE FUNCTION TelefonoClienteInsertar();

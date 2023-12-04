@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    background: url("https://img.freepik.com/foto-gratis/hojas-otono-secas-desenfocadas-naturaleza_23-2150708281.jpg?w=1800&t=st=1701709117~exp=1701709717~hmac=b6e9631943bf2860d65c7d61a7f7527a28914bef51204abe1c98e7a4b970fc4e");
+    display: flex;
+    justify-content: center;
+}
+
+/*Contenedor principal*/
+.card_principal{
+    width: 40%;
+    border-radius: 30px 30px 30px 30px;
+    border: 4px solid #FFF;
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(45px);
+    padding: 3%;
+    display: flex;
+    justify-content: center;
+}
+.card_principal h1{
+    color: #FFF;
+}
+p, label{
+    color: #FFF;
+}
+
+/*Footer o pie de página*/
+footer{
+    width: 100%;
+    height: 2.5%;
+    background-color: #808000;
+    color: white;
+    bottom: 0;
+    position: absolute;
+}

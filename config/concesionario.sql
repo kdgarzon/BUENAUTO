@@ -101,7 +101,7 @@ CREATE TABLE Tipo(
 	Tipo varchar(20) NOT NULL,
     PRIMARY KEY (ID)
 );
-INSERT INTO Tipo (Tipo) VALUES ('ACTIV');
+INSERT INTO Tipo (Tipo) VALUES ('Camión');
 
 CREATE SEQUENCE Color_Auto
     START 601

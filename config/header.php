@@ -38,6 +38,19 @@
                             <li><a class="dropdown-item" href="../Automotor/ColorYMarca.php">Color y marca</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../Compras/ReporteCompras.php" style = "color:#FFF" id = "item">Compras</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style = "color:#FFF" id = "item">
+                            Consolidados
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Consolidado 1</a></li>
+                            <li><a class="dropdown-item" href="#">Consolidado 2</a></li>
+                            <li><a class="dropdown-item" href="#">Consolidado 3</a></li>
+                        </ul>
+                    </li>
                     <!--<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style = "color:#FFF" id = "item">
                             Animales

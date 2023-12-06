@@ -17,6 +17,9 @@
     $sqlCiudades = "SELECT ID, Ciudad FROM Ciudad_Residencia";
     $Ciudades = pg_query($link, $sqlCiudades) or die('La consulta de ciudades fallo: ' . pg_last_error($link));
 
+    $sqlSucursales = "SELECT ID, NombreSucursal FROM Sucursal";
+    $Sucursales = pg_query($link, $sqlSucursales) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
+
     $ID_u = (isset($_GET['identificacion'])?$_GET['identificacion']:"0");
 
     $sqlSeleccionar = "SELECT * FROM cliente WHERE identificacion = $ID_u";
@@ -73,6 +76,21 @@
                     </div>
 
                     <div class="mb-1">
+                        <label for="ListaSucursales" class="form-label">Sucursales: </label>
+                        <select id="ListaSucursales" name="ListaSucursales" class="form-select" required>
+                            <option selected>Seleccionar...</option>
+                            <?php
+                                while ($row_su = pg_fetch_object($Sucursales)) {
+                                    $selected = ($row_su->id == $fila[5]) ? 'selected' : ''; // Verifica si coincide con el valor que esta en la posición 7
+                            ?>
+                            <option value="<?php echo $row_su->id ?>" <?php echo $selected; ?>>
+                                <?= $row_su->nombresucursal; ?>
+                            </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-1">
                         <label for="txtFechaRegistro" class="form-label">Fecha de registro: </label>
                         <input type="date" value="<?= $fila[3]; ?>" class="form-control" id="txtFechaRegistro" name="txtFechaRegistro" placeholder="Fecha de registro..." required>
                     </div>
@@ -98,9 +116,10 @@
                 $Ciudad = $_POST['ListaCiudades'];
                 $FechaRegistro = $_POST['txtFechaRegistro'];
                 $Telefono = $_POST['txtTelefono'];
+                $Sucursal = $_POST['ListaSucursales'];
 
                 $sql_actualizar = "UPDATE cliente 
-                SET id_ciudad = $Ciudad, nombre = '$Nom', fecha_registro = '$FechaRegistro'
+                SET id_ciudad = $Ciudad, nombre = '$Nom', fecha_registro = '$FechaRegistro', id_sucursal = $Sucursal
                 WHERE identificacion = $ID";
                 $res = pg_query($link, $sql_actualizar) or die('La edición de datos fallo: ' . pg_last_error($link));
 

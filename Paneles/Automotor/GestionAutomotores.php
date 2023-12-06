@@ -57,6 +57,7 @@
                     ?>
                 </select>
             </div>
+            
             <?php
                 $sqlLinea = "SELECT ID, Linea FROM Linea";
                 $Linea = pg_query($link, $sqlLinea) or die('La consulta de líneas fallo: ' . pg_last_error($link));
@@ -102,17 +103,32 @@
                     ?>
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="txtModelo" class="form-label">Modelo: </label>
                 <input type="number" class="form-control" placeholder="Modelo..." id="txtModelo" name="txtModelo" required>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="txtIdentInterna" class="form-label">Número de Identificación interna: </label>
                 <input type="text" class="form-control" placeholder="Identificación interna..." id="txtIdentInterna" name="txtIdentInterna">
             </div>
             <div class="col-md-4">
                 <label for="txtPlaca" class="form-label">Placa: </label>
                 <input type="text" class="form-control" placeholder="Placa..." id="txtPlaca" name="txtPlaca">
+            </div>
+            <?php
+                $sqlSucursales = "SELECT ID, NombreSucursal FROM Sucursal";
+                $Sucursales = pg_query($link, $sqlSucursales) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
+            ?>
+            <div class="col-md-4"><!--Lista desplegable-->
+                <label for="ListaSucursales" class="form-label">Sucursal: </label>
+                <select id="ListaSucursales" name="ListaSucursales" class="form-select" required>
+                    <option selected>Seleccionar...</option>
+                    <?php
+                    while ($row_su = pg_fetch_object($Sucursales)) { ?>
+                        <option value = "<?php echo $row_su->id ?>"><?php echo $row_su->nombresucursal; ?></option>;
+                    <?php } 
+                    ?>
+                </select>
             </div>
             <div class="col-md-2" id = "boton">
                 <input type="submit" class = "btn" style = "background-color:#A6FB7E" value = "INSERTAR" id = "btnAgregar" name = "btnAgregar">
@@ -134,6 +150,7 @@
                 <th>Modelo</th>
                 <th>Identificación interna</th>
                 <th>Placa</th>
+                <th>Sucursal</th>
                 <th>Acciones</th>
             </thead>
             <?php
@@ -150,6 +167,7 @@
                         <td><?= $fila[5]; ?></td>
                         <td><?= $fila[6]; ?></td>
                         <td><?= $fila[7]; ?></td>
+                        <td><?= $fila[8]; ?></td>
                         <td>
                             <a href="ModificarAutomotor.php?numero_chasis=<?= $fila[0] ?>" class="btn btn-warning" style = "margin-right:7px;">
                                 <img src = "../../Imagenes/editar.png" width = "20px" height = "20px">
@@ -176,10 +194,11 @@
             $Modelo = $_POST['txtModelo'];
             $Interna = $_POST['txtIdentInterna'];
             $Placa = $_POST['txtPlaca'];
+            $Sucursal = $_POST['ListaSucursales'];
 
             //Formulo la consulta SQL
-            $sql = "INSERT INTO automotor (numero_chasis, id_color, id_linea, id_tipo, id_marca, modelo, identificacion_interna, placa) 
-                VALUES ('$Chasis', '$Color', '$Linea', '$Tipo', '$Marca', '$Modelo', '$Interna', '$Placa');";
+            $sql = "INSERT INTO automotor (numero_chasis, id_color, id_linea, id_tipo, id_marca, modelo, identificacion_interna, placa, sucursaldondeesta) 
+                VALUES ('$Chasis', '$Color', '$Linea', '$Tipo', '$Marca', '$Modelo', '$Interna', '$Placa', $Sucursal);";
 
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));
 

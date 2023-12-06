@@ -33,11 +33,11 @@
     <div class = "EntradaDatos">
         <form action="GestionClientes.php" method = "POST" name = "formulario" class = "row g-3">
             <h2 class = "tit">Información general</h2>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="txtIdentificacion" class="form-label">Número de identificación:</label>
                 <input type="number" class="form-control" id="txtIdentificacion" name="txtIdentificacion" placeholder="Identificación..." required>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="txtNombre" class="form-label">Nombre:</label>
                 <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre del cliente..." required>
             </div>
@@ -45,7 +45,7 @@
                 $sqlCiudades = "SELECT ID, Ciudad FROM Ciudad_Residencia";
                 $Ciudades = pg_query($link, $sqlCiudades) or die('La consulta de ciudades fallo: ' . pg_last_error($link));
             ?>
-            <div class="col-md-4"><!--Lista desplegable-->
+            <div class="col-md-6"><!--Lista desplegable-->
                 <label for="ListaCiudades" class="form-label">Ciudad de Residencia: </label>
                 <select id="ListaCiudades" name="ListaCiudades" class="form-select" required>
                     <option selected>Seleccionar...</option>
@@ -56,13 +56,28 @@
                     ?>
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="txtFechaRegistro" class="form-label">Fecha de Registro: </label>
                 <input type="date" class="form-control" placeholder="Fecha de registro..." id="txtFechaRegistro" name="txtFechaRegistro" required>
             </div>
             <div class="col-md-4">
                 <label for="txtTelefono" class="form-label">Teléfono del cliente: </label>
                 <input type="number" class="form-control" placeholder="Teléfono..." id="txtTelefono" name="txtTelefono" required>
+            </div>
+            <?php
+                $sqlSucursales = "SELECT ID, NombreSucursal FROM Sucursal";
+                $Sucursales = pg_query($link, $sqlSucursales) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
+            ?>
+            <div class="col-md-4"><!--Lista desplegable-->
+                <label for="ListaSucursales" class="form-label">Sucursal: </label>
+                <select id="ListaSucursales" name="ListaSucursales" class="form-select" required>
+                    <option selected>Seleccionar...</option>
+                    <?php
+                    while ($row_su = pg_fetch_object($Sucursales)) { ?>
+                        <option value = "<?php echo $row_su->id ?>"><?php echo $row_su->nombresucursal; ?></option>;
+                    <?php } 
+                    ?>
+                </select>
             </div>
             <div class="col-md-2" id = "boton">
                 <input type="submit" class = "btn" style = "background-color:#A6FB7E" value = "INSERTAR" id = "btnAgregar" name = "btnAgregar">
@@ -81,6 +96,7 @@
                 <th>Ciudad de residencia</th>
                 <th>Fecha de registro</th>
                 <th>Telefono</th>
+                <th>Sucursal</th>
                 <th>Acciones</th>
             </thead>
             <?php
@@ -94,6 +110,7 @@
                         <td><?= $fila[2]; ?></td>
                         <td><?= $fila[3]; ?></td>
                         <td><?= $fila[4]; ?></td>
+                        <td><?= $fila[5]; ?></td>
 
                         <td>
                             <a href="ModificarCliente.php?identificacion=<?= $fila[0] ?>" class="btn btn-warning" style = "margin-right:7px;">
@@ -118,10 +135,11 @@
             $Ciudad = $_POST['ListaCiudades'];
             $FechaRegistro = $_POST['txtFechaRegistro'];
             $Telefono = $_POST['txtTelefono'];
+            $Sucursal = $_POST['ListaSucursales'];
 
             //Formulo la consulta SQL
-            $sql = "INSERT INTO cliente (identificacion, id_ciudad, nombre, fecha_registro) 
-                VALUES ('$Identificacion', '$Ciudad', '$Nombre', '$FechaRegistro') RETURNING identificacion;";
+            $sql = "INSERT INTO cliente (identificacion, id_ciudad, nombre, fecha_registro, id_sucursal) 
+                VALUES ('$Identificacion', '$Ciudad', '$Nombre', '$FechaRegistro', $Sucursal) RETURNING identificacion;";
 
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));
 

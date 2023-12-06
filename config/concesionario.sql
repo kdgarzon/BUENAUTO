@@ -49,7 +49,6 @@ CREATE SEQUENCE Sucursal_Auto
     INCREMENT 1;
 CREATE TABLE Sucursal(
 	ID INT DEFAULT nextval('Sucursal_Auto'),
-	ID_Gerente INT,
 	NombreSucursal varchar(50) NOT NULL,
     CiudadSucursal INT, 
     PRIMARY KEY (ID),
@@ -75,12 +74,12 @@ CREATE SEQUENCE Empleado_Auto
 CREATE TABLE Empleado(
 	Codigo INT DEFAULT nextval('Empleado_Auto'),
 	ID_cargo INT,
-	ID_Sucursal INT,
 	Identificacion INT NOT NULL,
 	NombreEmp varchar(35) NOT NULL,
 	Fecha_nacimiento DATE NOT NULL,
 	Fecha_ingreso DATE NOT NULL,
 	Salario FLOAT NOT NULL,
+    ID_Sucursal INT,
     PRIMARY KEY (Codigo),
 	FOREIGN KEY(ID_cargo) REFERENCES Cargo(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -208,14 +207,16 @@ CREATE TABLE Automotor(
 	Modelo INT NOT NULL,
 	Identificacion_interna VARCHAR(10),
 	Placa VARCHAR(8),
+    SucursalDondeEsta INT,
     PRIMARY KEY (Numero_Chasis),
 	FOREIGN KEY(ID_Color) REFERENCES Color(ID) ON DELETE SET NULL ON UPDATE CASCADE,
 	FOREIGN KEY(ID_Linea) REFERENCES Linea(ID) ON DELETE SET NULL ON UPDATE CASCADE,
 	FOREIGN KEY(ID_Tipo) REFERENCES Tipo(ID) ON DELETE SET NULL ON UPDATE CASCADE,
-	FOREIGN KEY(ID_Marca) REFERENCES Marca(ID) ON DELETE SET NULL ON UPDATE CASCADE
+	FOREIGN KEY(ID_Marca) REFERENCES Marca(ID) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY(SucursalDondeEsta) REFERENCES Sucursal(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
 INSERT INTO Automotor (Numero_Chasis, ID_Color, ID_Linea, ID_Tipo, ID_Marca, Modelo, Identificacion_interna, Placa) 
-	VALUES ('1HGCM82633A123456', 601, 401, 501, 701, 2020, 'ABC100', NULL);
+	VALUES ('1HGCM82633A123456', 601, 401, 501, 701, 2020, 'ABC100', NULL, 303);
 
 
 CREATE TABLE Cliente(
@@ -223,10 +224,12 @@ CREATE TABLE Cliente(
 	ID_Ciudad INT,
 	Nombre varchar(60) NOT NULL,
 	Fecha_Registro DATE NOT NULL,
+    ID_Sucursal INT,
     PRIMARY KEY (Identificacion),
-	FOREIGN KEY(ID_Ciudad) REFERENCES Ciudad_Residencia(ID) ON DELETE SET NULL ON UPDATE CASCADE
+	FOREIGN KEY(ID_Ciudad) REFERENCES Ciudad_Residencia(ID) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY(ID_Sucursal) REFERENCES Sucursal(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Cliente (Identificacion, ID_Ciudad, Nombre, Fecha_Registro) VALUES (1000472996, 801, 'Daniel Caicedo', '2023-11-03');
+INSERT INTO Cliente (Identificacion, ID_Ciudad, Nombre, Fecha_Registro, ID_Sucursal) VALUES (1000472996, 801, 'Daniel Caicedo', '2023-11-03', 305);
 
 CREATE TABLE Telefono_Clie(
 	ID_Cliente INT NOT NULL,
@@ -251,14 +254,16 @@ CREATE SEQUENCE Compra_Auto
 CREATE TABLE Compra(
 	ID_Compra INT DEFAULT nextval('Compra_Auto'),
     ID_Cliente INT,
-    ID_Sucursal INT,
+    ID_Auto INT,
+    ID_Empleado INT,
     Fecha_Compra DATE NOT NULL,
 	Valor FLOAT NOT NULL,
     PRIMARY KEY (ID_Compra),
     FOREIGN KEY (ID_Cliente) REFERENCES Cliente (Identificacion) ON DELETE SET NULL ON UPDATE CASCADE,
-    FOREIGN KEY (ID_Sucursal) REFERENCES Sucursal (ID) ON DELETE SET NULL ON UPDATE CASCADE
+    FOREIGN KEY (ID_Auto) REFERENCES Automotor (Numero_Chasis) ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (ID_Empleado) REFERENCES Empleado (Codigo) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Compra (ID_Cliente, ID_Sucursal, Fecha_Compra, Valor) VALUES (1000472996, 301, '2023-11-03', 44500000);
+INSERT INTO Compra (ID_Cliente, ID_Auto, ID_Empleado, Fecha_Compra, Valor) VALUES (1000472996, '1HGCM82633A123456', 1000472996, '2023-11-03', 44500000);
 
 /*TRIGGERS*/
 
@@ -416,7 +421,7 @@ FROM Empleado e
 JOIN Cargo c ON e.id_cargo = c.id
 JOIN Sucursal s ON e.id_sucursal = s.id
 LEFT JOIN Telefono_Emp t ON e.codigo = t.id_empleado
-ORDER BY e.codigo ASC;
+ORDER BY s.id, c.id, e.fecha_ingreso ASC;
 
 
 --Vista para visualizar la tabla Usuario de manera cómoda
@@ -443,10 +448,11 @@ ORDER BY a.numero_chasis ASC;
 --Vista general de cliente
 CREATE VIEW Vista_Cliente AS
 SELECT 
-    c.identificacion, c.nombre, cr.ciudad, c.fecha_registro, t.Telefono
+    c.identificacion, c.nombre, cr.ciudad, c.fecha_registro, t.Telefono, s.nombresucursal
 FROM Cliente c
 JOIN Ciudad_Residencia cr ON c.id_ciudad = cr.id
 JOIN Telefono_Clie t ON c.identificacion = t.ID_Cliente
+JOIN Sucursal s ON c.id_sucursal = s.ID
 ORDER BY c.identificacion ASC;
 
 --Vista general de tabla adquirir

@@ -26,6 +26,9 @@
     $sqlMarca = "SELECT ID, Marca FROM Marca";
     $Marca = pg_query($link, $sqlMarca) or die('La consulta de marcas fallo: ' . pg_last_error($link));
 
+    $sqlSucursales = "SELECT ID, NombreSucursal FROM Sucursal";
+    $Sucursales = pg_query($link, $sqlSucursales) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
+
     $ID_u = (isset($_GET['numero_chasis'])?$_GET['numero_chasis']:"0");
 
     $sqlSeleccionar = "SELECT * FROM automotor WHERE numero_chasis = '$ID_u'";
@@ -127,6 +130,21 @@
                         <input type="text" value="<?= $fila[7]; ?>" class="form-control" id="txtPlaca" name="txtPlaca" placeholder="Número de placa...">
                     </div>
 
+                    <div class="mb-1">
+                        <label for="ListaSucursales" class="form-label">Sucursal: </label>
+                        <select id="ListaSucursales" name="ListaSucursales" class="form-select" required>
+                            <option selected>Seleccionar...</option>
+                            <?php
+                                while ($row_su = pg_fetch_object($Sucursales)) {
+                                    $selected = ($row_su->id == $fila[8]) ? 'selected' : ''; // Verifica si coincide con el valor que esta en la posición 7
+                            ?>
+                            <option value="<?php echo $row_su->id ?>" <?php echo $selected; ?>>
+                                <?= $row_su->nombresucursal; ?>
+                            </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+
                 <?php } ?>
                 <div class="col-md-2 d-flex justify-content-between" id="boton">
                     <input type="submit" class="btn" style="background-color:#38A843" value="ACTUALIZAR" id="btnActualizar" name="btnActualizar">
@@ -145,9 +163,10 @@
             $Modelo = $_POST['txtModelo'];
             $Interna = $_POST['txtIdentInterna'];
             $Placa = $_POST['txtPlaca'];
+            $Sucursal = $_POST['ListaSucursales'];
 
             $sql_actualizar = "UPDATE automotor 
-                SET id_color = $Color, id_linea = $Linea, id_tipo = $Tipo, id_marca = $Marca, modelo = $Modelo, identificacion_interna = '$Interna', placa = '$Placa'
+                SET id_color = $Color, id_linea = $Linea, id_tipo = $Tipo, id_marca = $Marca, modelo = $Modelo, identificacion_interna = '$Interna', placa = '$Placa', SucursalDondeEsta = $Sucursal
                 WHERE numero_chasis = '$ID'";
             $res = pg_query($link, $sql_actualizar) or die('La edición de datos fallo: ' . pg_last_error($link));
 

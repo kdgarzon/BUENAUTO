@@ -17,14 +17,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
-        rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
-        crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.8.0/dist/sweetalert2.all.min.js"></script> 
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.8.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <?php include '../../config/encabezado.php';?>
     <title>Gestion de Usuarios</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>
@@ -80,11 +80,7 @@
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT u.id, e.nombre, u.username, u.pass, r.rol
-                    FROM Usuario u
-                    JOIN Empleado e ON u.Id_empleado = e.codigo
-                    JOIN Rol r ON u.Id_rol = r.id
-                    ORDER BY u.id ASC";
+                $consultar = "SELECT * FROM Vista_Usuario;";
                 $registros = pg_query($link, $consultar) or die('La consulta de usuarios fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>

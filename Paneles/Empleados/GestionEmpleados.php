@@ -17,14 +17,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
-        rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
-        crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.8.0/dist/sweetalert2.all.min.js"></script> 
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.8.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <?php include '../../config/encabezado.php';?>
     <title>Gestion de Empleados</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>
@@ -57,7 +57,7 @@
                 </select>
             </div>
             <?php
-                $sqlSucursal = "SELECT ID, Nombre FROM Sucursal";
+                $sqlSucursal = "SELECT ID, NombreSucursal FROM Sucursal";
                 $Sucursales = pg_query($link, $sqlSucursal) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
             ?>
             <div class="col-md-4"><!--Lista desplegable-->
@@ -111,12 +111,7 @@
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT e.codigo, e.identificacion, e.nombre, c.cargo, s.nombre, e.fecha_nacimiento, e.fecha_ingreso, e.salario, t.telefono
-                    FROM Empleado e
-                    JOIN Cargo c ON e.id_cargo = c.id
-                    JOIN Sucursal s ON e.id_sucursal = s.id
-                    JOIN Telefono_Emp t ON e.codigo = t.id_empleado
-                    ORDER BY e.codigo ASC";
+                $consultar = "SELECT * FROM Vista_Empleado";
                 $registros = pg_query($link, $consultar) or die('La consulta de empleados fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>
@@ -158,7 +153,7 @@
             $Telefono = $_POST['txtTelefono'];
 
             //Formulo la consulta SQL
-            $sql = "INSERT INTO empleado (id_cargo, id_sucursal, identificacion, nombre, fecha_nacimiento, fecha_ingreso, salario) 
+            $sql = "INSERT INTO empleado (id_cargo, id_sucursal, identificacion, nombreEmp, fecha_nacimiento, fecha_ingreso, salario) 
                 VALUES ('$Cargo', '$Sucursal', '$Identificacion', '$Nombre', '$FechaNac', '$FechaIngr', '$Salario' ) RETURNING codigo;";
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));
 

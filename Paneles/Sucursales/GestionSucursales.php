@@ -81,7 +81,6 @@
             <thead class = "table-light">
                 <th>ID sucursal</th>
                 <th>Nombre sucursal</th>
-                <th>Gerente</th>
                 <th>Ciudad</th>
                 <th>Acciones</th>
             </thead>
@@ -94,7 +93,6 @@
                         <td><?= $fila[0]; ?></td>
                         <td><?= $fila[1]; ?></td>
                         <td><?= $fila[2]; ?></td>
-                        <td><?= $fila[3]; ?></td>
 
                         <td>
                             <a href="ModificarSucursal.php?id=<?= $fila[0] ?>" class="btn btn-warning" style = "margin-right:7px;">

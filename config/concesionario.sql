@@ -323,7 +323,7 @@ CREATE OR REPLACE FUNCTION SucursalClientesNuevos(mes INT, anio INT) RETURNS TAB
 BEGIN
     RETURN QUERY
         SELECT
-            s.NombreSucursal AS SucursalDondeRegistro,
+            s.id AS SucursalDondeRegistro,
             c.Identificacion AS Identificacion,
             c.Nombre AS NombreCliente,
             c.Fecha_Registro AS FechaRegistro
@@ -336,7 +336,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---SELECT * FROM datos_clientes_nuevos(10, 2023);
+--SELECT * FROM SucursalClientesNuevos(10, 2023);
 
 /*TRIGGER PARA CREAR UN NUEVO USUARIO DESPUÉS DE INSERTAR UN NUEVO EMPLEADO*/
 --Este trigger funcionará de manera que cuando se inserte un nuevo empleado se inserte

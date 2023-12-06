@@ -46,9 +46,8 @@
                             Consolidados
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Consolidado 1</a></li>
-                            <li><a class="dropdown-item" href="#">Consolidado 2</a></li>
-                            <li><a class="dropdown-item" href="#">Consolidado 3</a></li>
+                            <li><a class="dropdown-item" href="../Consolidados/ClientesNuevos.php">Consolidado 1</a></li>
+                            <li><a class="dropdown-item" href="../Empleados/GestionEmpleados.php">Consolidado 5</a></li>
                         </ul>
                     </li>
                     <!--<li class="nav-item dropdown">

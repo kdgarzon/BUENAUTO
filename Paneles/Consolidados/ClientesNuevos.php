@@ -17,6 +17,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes nuevos</title>
     <?php include '../../config/encabezado.php';?>
     <title>Compras</title>
     <style>
@@ -28,34 +31,29 @@
 </head>
 <body>
     <?php include '../../config/header.php';?>
-    <h1 class = "titulo_principal">Resumen de compras</h1>
-    <hr class="linea">
     <div class="informacion">
+        <h1 class = "titulo_principal">Consolidado clientes nuevos</h1>
+        <hr class="linea">
+        <p>
+            A continuación se muestra el determinado reporte relacionado al 
+            consolidado mensual de la cantidad de clientes nuevos a nivel nacional.
+        </p>
         <h2 class = "tit">Registros</h2>
         <table class = "table table-striped">
             <thead class = "table-light">
-                <th>ID Compra</th>
-                <th>Cliente</th>
-                <th>Empleado</th>
-                <th>Fecha de compra</th>
-                <th>Valor</th>
-                <th>Ciudad</th>
-                <th>Fecha de registro</th>
-
+                <th>ID</th>
+                <th>Mes</th>
+                <th>Cantidad (clientes nuevos)</th>
             </thead>
             <?php
-                $consultar = "SELECT * FROM Vista_Compra;";
-                $registros = pg_query($link, $consultar) or die('La consulta de compras fallo: ' . pg_last_error($link));
+                $consultar = "SELECT * FROM CantClientesNuevos;";
+                $registros = pg_query($link, $consultar) or die('La consulta de clientes nuevos fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>
                     <tr>
                         <td><?= $fila[0]; ?></td>
                         <td><?= $fila[1]; ?></td>
                         <td><?= $fila[2]; ?></td>
-                        <td><?= $fila[3]; ?></td>
-                        <td><?= number_format($fila[4]); ?></td>
-                        <td><?= $fila[5]; ?></td>
-                        <td><?= $fila[6]; ?></td>
                     </tr>
                 <?php } ?>
         </table>

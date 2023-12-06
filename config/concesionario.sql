@@ -267,9 +267,78 @@ INSERT INTO Compra (ID_Cliente, ID_Auto, ID_Empleado, Fecha_Compra, Valor) VALUE
 
 /*TRIGGERS*/
 
-/*TRIGGER PARA ACTUALIZAR EL ID_GERENTE EN SUCURSAL CUANDO SE INSERTE UN NUEVO EMPLEADO*/
---Se utiliza cuando la sucursal no tiene un gerente asignado
-CREATE OR REPLACE FUNCTION actualizarGerente()
+--Asigna la sucursal al cliente nuevo
+
+CREATE OR REPLACE FUNCTION SucursalCliente() RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.ID_Cliente IS NOT NULL AND (SELECT ID_Sucursal FROM Cliente WHERE Identificacion = NEW.ID_Cliente) IS NULL THEN
+        UPDATE Cliente SET ID_Sucursal = (SELECT ID_Sucursal FROM Empleado WHERE codigo = NEW.ID_Empleado) WHERE Identificacion = NEW.ID_Cliente;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_asignar_sucursal
+AFTER INSERT ON Compra
+FOR EACH ROW
+EXECUTE FUNCTION SucursalCliente();
+
+-- Crear una función que devuelve cantidad de clientes nuevos (Consolidado mensual)
+
+CREATE TABLE CantClientesNuevos(
+    ID_cant SERIAL PRIMARY KEY NOT NULL,
+    Mes int not null,
+    Cantidad int not null
+);
+
+ALTER TABLE CantClientesNuevos ADD CONSTRAINT uk_Mes UNIQUE (Mes);
+
+CREATE OR REPLACE FUNCTION fechas() RETURNS TRIGGER AS $$
+    DECLARE
+        mesRegistro INT;
+    BEGIN
+        mesRegistro := EXTRACT(MONTH FROM NEW.Fecha_Registro);
+
+        INSERT INTO CantClientesNuevos(Mes, Cantidad) VALUES (mesRegistro, 1)
+        ON CONFLICT (Mes) 
+        DO UPDATE SET Cantidad = CantClientesNuevos.Cantidad + 1;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_fechas
+AFTER INSERT ON Cliente
+FOR EACH ROW
+EXECUTE FUNCTION fechas();
+
+--Clientes nuevos por sucursal
+
+CREATE OR REPLACE FUNCTION SucursalClientesNuevos(mes INT, anio INT) RETURNS TABLE (
+    SucursalDondeRegistro INT,
+    Identificacion INT,
+    NombreCliente VARCHAR,
+    FechaRegistro DATE
+) AS $$
+BEGIN
+    RETURN QUERY
+        SELECT
+            s.NombreSucursal AS SucursalDondeRegistro,
+            c.Identificacion AS Identificacion,
+            c.Nombre AS NombreCliente,
+            c.Fecha_Registro AS FechaRegistro
+        FROM Cliente c
+        JOIN Sucursal s ON c.ID_Sucursal = s.ID
+        WHERE EXTRACT(MONTH FROM c.Fecha_Registro) = mes
+        AND EXTRACT(YEAR FROM c.Fecha_Registro) = anio;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+--SELECT * FROM datos_clientes_nuevos(10, 2023);
+
+/*CREATE OR REPLACE FUNCTION actualizarGerente()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Se verifica si la sucursal ya tiene un gerente asignado
@@ -399,7 +468,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---SELECT * FROM TotalCompras();
+--SELECT * FROM TotalCompras();*/
 
 /*VISTAS*/
 
@@ -478,34 +547,7 @@ ORDER BY c.ID_Compra ASC;
 
 
 /*PROCEDIMIENTOS DE PRUEBA*/
--- Crear una función que devuelve cantidad de clientes nuevos (Consolidado mensual)
 
-CREATE TABLE CantClientesNuevos(
-    ID_cant SERIAL PRIMARY KEY NOT NULL,
-    Mes int not null,
-    Cantidad int not null
-);
-
-ALTER TABLE CantClientesNuevos ADD CONSTRAINT uk_Mes UNIQUE (Mes);
-
-CREATE OR REPLACE FUNCTION fechas() RETURNS TRIGGER AS $$
-    DECLARE
-        mesRegistro INT;
-    BEGIN
-        mesRegistro := EXTRACT(MONTH FROM NEW.Fecha_Registro);
-
-        INSERT INTO CantClientesNuevos(Mes, Cantidad) VALUES (mesRegistro, 1)
-        ON CONFLICT (Mes) 
-        DO UPDATE SET Cantidad = CantClientesNuevos.Cantidad + 1;
-
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_fechas
-AFTER INSERT ON Cliente
-FOR EACH ROW
-EXECUTE FUNCTION fechas();
 
 --TRIGGER DE CONSOLIDADO MENSUAL Y ANUAL DE MARCAS MAS VENDIDAS
 CREATE TABLE CantMarcasVendidas(

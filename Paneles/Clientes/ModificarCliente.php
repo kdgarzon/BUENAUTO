@@ -21,6 +21,15 @@
 
     $sqlSeleccionar = "SELECT * FROM cliente WHERE identificacion = $ID_u";
     $registros = pg_query($link, $sqlSeleccionar) or die('La consulta de clientes fallo: ' . pg_last_error($link));
+
+    $sqlTelefono = "SELECT * FROM Telefono_Clie WHERE id_cliente = $ID_u";
+    $Telefono = pg_query($link, $sqlTelefono) or die('La consulta de telefonos fallo: ' . pg_last_error($link));;
+    
+    $telefonoCliente = '';
+    while ($rowTelefono = pg_fetch_array($Telefono)) {
+        $telefonoCliente = $rowTelefono['telefono'];
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -68,6 +77,11 @@
                         <input type="date" value="<?= $fila[3]; ?>" class="form-control" id="txtFechaRegistro" name="txtFechaRegistro" placeholder="Fecha de registro..." required>
                     </div>
 
+                    <div class="mb-1">
+                        <label for="txtTelefono" class="form-label">Telefono: </label>
+                        <input type="number" value="<?= $telefonoCliente; ?>" class="form-control" id="txtTelefono" name="txtTelefono" placeholder="Telefono..." required>
+                    </div>
+
                 <?php } ?>
                 <div class="col-md-2 d-flex justify-content-between" id="boton">
                     <input type="submit" class="btn" style="background-color:#38A843" value="ACTUALIZAR" id="btnActualizar" name="btnActualizar">
@@ -78,18 +92,26 @@
     <?php include '../../config/footer.php';?>
     <?php
         if(isset($_POST['btnActualizar'])){
-            if(!empty($_POST['txtNombre']) && !empty($_POST['ListaCiudades']) && !empty($_POST['txtFechaRegistro'])){
+            if(!empty($_POST['txtNombre']) && !empty($_POST['ListaCiudades']) && !empty($_POST['txtFechaRegistro']) && !empty($_POST['txtTelefono'])){
                 $ID = $_POST['id'];
                 $Nom = $_POST['txtNombre'];
                 $Ciudad = $_POST['ListaCiudades'];
                 $FechaRegistro = $_POST['txtFechaRegistro'];
+                $Telefono = $_POST['txtTelefono'];
 
                 $sql_actualizar = "UPDATE cliente 
                 SET id_ciudad = $Ciudad, nombre = '$Nom', fecha_registro = '$FechaRegistro'
                 WHERE identificacion = $ID";
                 $res = pg_query($link, $sql_actualizar) or die('La edición de datos fallo: ' . pg_last_error($link));
 
-                if($res){
+                $sqlActualizarTelefono = "UPDATE telefono_clie
+                    SET telefono = '$Telefono'
+                    WHERE id_cliente = $ID";
+
+                $resTelefono = pg_query($link, $sqlActualizarTelefono);
+
+                if($res && $resTelefono){
+
                     echo "<script type='text/javascript'>
                         Swal.fire({
                             title: '¡Los datos se actualizaron correctamente!',
@@ -121,6 +143,7 @@
                         }, 1800);
                     </script>";
                 }
+
             }else{
                 //Alerta de que hay campos vacios
                 echo "<script type='text/javascript'>

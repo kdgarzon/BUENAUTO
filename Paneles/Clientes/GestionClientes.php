@@ -60,6 +60,10 @@
                 <label for="txtFechaRegistro" class="form-label">Fecha de Registro: </label>
                 <input type="date" class="form-control" placeholder="Fecha de registro..." id="txtFechaRegistro" name="txtFechaRegistro" required>
             </div>
+            <div class="col-md-4">
+                <label for="txtTelefono" class="form-label">Teléfono del cliente: </label>
+                <input type="number" class="form-control" placeholder="Teléfono..." id="txtTelefono" name="txtTelefono" required>
+            </div>
             <div class="col-md-2" id = "boton">
                 <input type="submit" class = "btn" style = "background-color:#A6FB7E" value = "INSERTAR" id = "btnAgregar" name = "btnAgregar">
             </div>
@@ -76,6 +80,7 @@
                 <th>Nombre del cliente</th>
                 <th>Ciudad de residencia</th>
                 <th>Fecha de registro</th>
+                <th>Telefono</th>
                 <th>Acciones</th>
             </thead>
             <?php
@@ -88,6 +93,8 @@
                         <td><?= $fila[1]; ?></td>
                         <td><?= $fila[2]; ?></td>
                         <td><?= $fila[3]; ?></td>
+                        <td><?= $fila[4]; ?></td>
+
                         <td>
                             <a href="ModificarCliente.php?identificacion=<?= $fila[0] ?>" class="btn btn-warning" style = "margin-right:7px;">
                                 <img src = "../../Imagenes/editar.png" width = "20px" height = "20px">
@@ -110,28 +117,54 @@
             $Nombre = $_POST['txtNombre'];
             $Ciudad = $_POST['ListaCiudades'];
             $FechaRegistro = $_POST['txtFechaRegistro'];
+            $Telefono = $_POST['txtTelefono'];
 
             //Formulo la consulta SQL
             $sql = "INSERT INTO cliente (identificacion, id_ciudad, nombre, fecha_registro) 
-                VALUES ('$Identificacion', '$Ciudad', '$Nombre', '$FechaRegistro');";
+                VALUES ('$Identificacion', '$Ciudad', '$Nombre', '$FechaRegistro') RETURNING identificacion;";
 
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));
 
             if($respuesta){
-                echo "<script type='text/javascript'>
+                $row = pg_fetch_assoc($respuesta);
+                $idCliente = $row['identificacion'];
+        
+                // Formulo la consulta SQL para insertar en la tabla telefono_clien
+                $sqlTelefono = "INSERT INTO telefono_clie (id_cliente, telefono) VALUES ('$idCliente', '$Telefono');";
+        
+                $resultadoTelefono = pg_query($link, $sqlTelefono);
+        
+                if($resultadoTelefono){
+                    echo "<script type='text/javascript'>
+                        Swal.fire({
+                            title: '¡Datos insertados correctamente!',
+                            width: 600,
+                            padding: '2em',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        setTimeout(function() {
+                            window.location.href = 'GestionClientes.php';
+                        }, 1500);
+                    </script>";
+                }else{
+                    echo "<script type='text/javascript'>
                     Swal.fire({
-                        title: '¡Datos insertados correctamente!',
+                        title: 'ERROR!!',
+                        text :'Algo salió mal y el telefono no pudo ser insertado. Intente de nuevo.',
                         width: 600,
                         padding: '2em',
-                        icon: 'success',
+                        icon: 'error',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 1800
                     });
                     setTimeout(function() {
                         // Redirige o realiza otra acción después de cerrar la alerta
                         window.location.href = 'GestionClientes.php';
-                    }, 1500);
+                    }, 1800);
                 </script>";
+                }
             }else{
                 echo "<script type='text/javascript'>
                     Swal.fire({

@@ -461,3 +461,67 @@ JOIN VistaGerente vg ON c.ID_Sucursal = vg.id
 JOIN Vista_Cliente vc ON c.ID_Cliente = vc.identificacion
 ORDER BY c.ID_Compra ASC;
 
+
+/*PROCEDIMIENTOS DE PRUEBA*/
+-- Crear una función que devuelve cantidad de clientes nuevos (Consolidado mensual)
+
+CREATE TABLE CantClientesNuevos(
+    ID_cant SERIAL PRIMARY KEY NOT NULL,
+    Mes int not null,
+    Cantidad int not null
+);
+
+ALTER TABLE CantClientesNuevos ADD CONSTRAINT uk_Mes UNIQUE (Mes);
+
+CREATE OR REPLACE FUNCTION fechas() RETURNS TRIGGER AS $$
+    DECLARE
+        mesRegistro INT;
+    BEGIN
+        mesRegistro := EXTRACT(MONTH FROM NEW.Fecha_Registro);
+
+        INSERT INTO CantClientesNuevos(Mes, Cantidad) VALUES (mesRegistro, 1)
+        ON CONFLICT (Mes) 
+        DO UPDATE SET Cantidad = CantClientesNuevos.Cantidad + 1;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_fechas
+AFTER INSERT ON Cliente
+FOR EACH ROW
+EXECUTE FUNCTION fechas();
+
+
+
+/*CREATE OR REPLACE FUNCTION clientesNuevos(fecha_registro DATE) RETURNS TABLE (
+    nombre_cliente VARCHAR(60),
+    fecha_registro DATE
+) AS $$
+BEGIN
+    RETURN QUERY SELECT nombre, fecha_registro FROM Cliente WHERE Identificacion = p_identificacion;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION 
+
+CREATE OR REPLACE FUNCTION calcular_gastos_administrativos() RETURNS TRIGGER AS $$
+    BEGIN
+        INSERT INTO Gastos_Administrativos(id_pedido, fecha_solicitud, valor) VALUES (NEW.id_pedido, NEW.fecha_pago, 50000);
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER calcular_gastos_administrativos AFTER INSERT ON Pedido FOR EACH ROW EXECUTE PROCEDURE calcular_gastos_administrativos();
+
+-- Procedimiento para calcular gastos administrativos en un periodo de tiempo
+
+CREATE OR REPLACE FUNCTION calcular_gastos_administrativos_periodo(fecha_inicio DATE, fecha_fin DATE) RETURNS DECIMAL(10,2) AS $$
+    DECLARE
+        total DECIMAL(10,2);
+    BEGIN
+        SELECT SUM(valor) INTO total FROM Gastos_Administrativos WHERE fecha_solicitud BETWEEN fecha_inicio AND fecha_fin;
+        RETURN total;
+    END;
+$$ LANGUAGE plpgsql;*/
+

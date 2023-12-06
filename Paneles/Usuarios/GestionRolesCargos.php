@@ -19,6 +19,12 @@
 <head>
     <?php include '../../config/encabezado.php';?>
     <title>Gestion de Usuarios</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head> 
 <body>
     <?php include '../../config/header.php';?> 

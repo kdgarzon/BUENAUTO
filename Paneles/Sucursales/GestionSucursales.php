@@ -19,6 +19,12 @@
 <head>
     <?php include '../../config/encabezado.php';?>
     <title>Gestion de Sucursales</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>
@@ -32,7 +38,7 @@
                 <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre..." required>
             </div>
             <?php
-                $sqlEmpleados = "SELECT Codigo, Nombre FROM Empleado WHERE ID_cargo = 201";
+                $sqlEmpleados = "SELECT Codigo, NombreEmp FROM Empleado WHERE ID_cargo = 201";
                 $Empleados = pg_query($link, $sqlEmpleados) or die('La consulta de empleados fallo: ' . pg_last_error($link));
             ?>
             <div class="col-md-4"><!--Lista desplegable-->
@@ -64,10 +70,7 @@
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT s.id, s.nombre, e.nombre
-                    FROM Sucursal s
-                    JOIN Empleado e ON s.id_gerente = e.codigo
-                    ORDER BY s.id ASC";
+                $consultar = "SELECT * FROM VistaGerente;";
                 $registros = pg_query($link, $consultar) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>
@@ -97,7 +100,7 @@
             $Gerente = $_POST['ListaEmpleados'];
 
             //Formulo la consulta SQL
-            $sql = "INSERT INTO sucursal (id_gerente, nombre) 
+            $sql = "INSERT INTO sucursal (id_gerente, nombresucursal) 
                 VALUES ('$Gerente', '$Nombre');";
 
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));

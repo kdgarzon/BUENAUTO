@@ -28,10 +28,10 @@ CREATE SEQUENCE Sucursal_Auto
 CREATE TABLE Sucursal(
 	ID INT DEFAULT nextval('Sucursal_Auto'),
 	ID_Gerente INT,
-	Nombre varchar(50) NOT NULL,
+	NombreSucursal varchar(50) NOT NULL,
     PRIMARY KEY (ID)
 );
-INSERT INTO Sucursal (Nombre) VALUES ('Sucursal La Floresta');
+INSERT INTO Sucursal (nombresucursal) VALUES ('Sucursal La Floresta');
 /*Se inserta solo el nombre porque después de creado el empleado se hará un UPDATE para el ID_Gerente*/
 
 CREATE SEQUENCE Empleado_Auto
@@ -54,7 +54,7 @@ la tabla Empleado se establecerá en NULL. Así mismo, si se actualiza algún da
 se actualizará automáticamente en la tabla Empleado*/
 
 INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 1000472996, 'Karen Garzon', '2002-10-17', '2023-06-20', 2500000, 301);
-UPDATE Sucursal SET ID_Gerente = 1001 WHERE Nombre = 'Sucursal La Floresta';
+UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal La Floresta';
 
 CREATE TABLE Telefono_Emp(
 	ID_Empleado INT NOT NULL,
@@ -182,12 +182,12 @@ CREATE SEQUENCE Compra_Auto
     START 901
     INCREMENT 1;
 CREATE TABLE Compra(
-	ID INT DEFAULT nextval('Compra_Auto'),
+	ID_Compra INT DEFAULT nextval('Compra_Auto'),
     ID_Cliente INT,
     ID_Sucursal INT,
     Fecha_Compra DATE NOT NULL,
 	Valor FLOAT NOT NULL,
-    PRIMARY KEY (ID),
+    PRIMARY KEY (ID_Compra),
     FOREIGN KEY (ID_Cliente) REFERENCES Cliente (Identificacion) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (ID_Sucursal) REFERENCES Sucursal (ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -377,17 +377,16 @@ $$ LANGUAGE plpgsql;
 
 --Vista para mostrar el nombre del gerente junto a la tabla sucursal en base a su ID
 CREATE VIEW VistaGerente AS
-SELECT
-    s.ID,
-    s.Nombre AS Nombre_Sucursal,
-    e.NombreEmp AS Nombre_Gerente
+SELECT 
+    s.id, s.nombresucursal, e.nombreemp
 FROM Sucursal s
-LEFT JOIN Empleado e ON s.ID_Gerente = e.Codigo;
+JOIN Empleado e ON s.id_gerente = e.codigo
+ORDER BY s.id ASC;
 
 --Vista para mostrar el nombre de la sucursal, el telefono y el cargo en la tabla empleado con base a su ID
 CREATE OR REPLACE VIEW Vista_Empleado AS
 SELECT 
-    e.codigo, e.identificacion, e.nombreemp, c.cargo, s.nombre, e.fecha_nacimiento, 
+    e.codigo, e.identificacion, e.nombreemp, c.cargo, s.nombresucursal, e.fecha_nacimiento, 
     e.fecha_ingreso, e.salario, t.telefono
 FROM Empleado e
 JOIN Cargo c ON e.id_cargo = c.id
@@ -398,49 +397,54 @@ ORDER BY e.codigo ASC;
 
 --Vista para visualizar la tabla Usuario de manera cómoda
 CREATE VIEW Vista_Usuario AS
-SELECT
-    u.ID AS ID_Usuario, u.ID_empleado, u.Username,
-    u.Pass, r.Rol AS Nombre_Rol, e.Nombre AS Nombre_Empleado
+SELECT 
+    u.id, e.nombreemp, u.username, u.pass, r.rol
 FROM Usuario u
-LEFT JOIN Rol r ON u.ID_Rol = r.ID
-LEFT JOIN Empleado e ON u.ID_empleado = e.Codigo;
+JOIN Empleado e ON u.Id_empleado = e.codigo
+JOIN Rol r ON u.Id_rol = r.id
+ORDER BY u.id ASC;
 
 --Vista general de automotor
 CREATE VIEW Vista_Automotor AS
-SELECT
-    a.Numero_Chasis, c.Color AS Nombre_Color, l.Linea AS Nombre_Linea,
-    t.Tipo AS Nombre_Tipo, m.Marca AS Nombre_Marca, a.Modelo, a.Identificacion_interna, a.Placa
+SELECT 
+    a.numero_chasis, c.color, l.linea, t.tipo, m.marca, a.Modelo, 
+    a.Identificacion_interna, a.Placa
 FROM Automotor a
-LEFT JOIN Color c ON a.ID_Color = c.ID
-LEFT JOIN Linea l ON a.ID_Linea = l.ID
-LEFT JOIN Tipo t ON a.ID_Tipo = t.ID
-LEFT JOIN Marca m ON a.ID_Marca = m.ID;
+JOIN Color c ON a.id_color = c.id
+JOIN Linea l ON a.id_linea = l.id
+JOIN Tipo t ON a.id_tipo = t.id
+JOIN Marca m ON a.id_marca = m.id
+ORDER BY a.numero_chasis ASC;
 
 --Vista general de cliente
 CREATE VIEW Vista_Cliente AS
-SELECT
-    cl.Identificacion AS ID_Cliente, cl.Nombre AS Nombre_Cliente,
-    t.Telefono, ci.Ciudad AS Nombre_Ciudad, cl.Fecha_Registro
-FROM Cliente cl
-LEFT JOIN Telefono_Clie t ON cl.Identificacion = t.ID_Cliente
-LEFT JOIN Ciudad_Residencia ci ON cl.ID_Ciudad = ci.ID;
+SELECT 
+    c.identificacion, c.nombre, cr.ciudad, c.fecha_registro, t.Telefono
+FROM Cliente c
+JOIN Ciudad_Residencia cr ON c.id_ciudad = cr.id
+JOIN Telefono_Clie t ON c.identificacion = t.ID_Cliente
+ORDER BY c.identificacion ASC;
 
 --Vista general de tabla adquirir
-CREATE OR REPLACE VIEW Vista_Adquirir AS
-SELECT
-    ad.ID_Cliente, ad.ID_Automotor, va.Numero_Chasis, va.Nombre_Color, va.Nombre_Linea,
-    va.Nombre_Tipo, va.Nombre_Marca, va.Modelo, va.Identificacion_interna, va.Placa,
-    vc.Nombre_Cliente, vc.Telefono, vc.Nombre_Ciudad, vc.Fecha_Registro
+CREATE VIEW Vista_Adquirir AS
+SELECT 
+    ad.ID_Cliente, ad.ID_Automotor, au.numero_chasis, au.color, au.linea,
+    au.tipo, au.marca, au.modelo, au.identificacion_interna, au.placa, cl.nombre,
+    cl.ciudad, cl.fecha_registro, tc.telefono
 FROM Adquirir ad
-LEFT JOIN Vista_Automotor va ON ad.ID_Automotor = va.Numero_Chasis
-LEFT JOIN Vista_Cliente vc ON ad.ID_Cliente = vc.ID_Cliente;
+JOIN Vista_Automotor au ON ad.ID_Automotor = au.numero_chasis
+JOIN Vista_Cliente cl ON ad.ID_Cliente = cl.identificacion
+JOIN Telefono_Clie tc ON ad.ID_Cliente = tc.ID_Cliente
+ORDER BY ad.ID_Cliente, ad.ID_Automotor ASC;
 
 --Vista general de tabla compra
-CREATE OR REPLACE VIEW Vista_Compra AS
-SELECT
-    co.ID, co.ID_Cliente, vc.Nombre_Cliente, vc.Telefono,
-    vc.Nombre_Ciudad, vc.Fecha_Registro, co.ID_Sucursal, vg.Nombre_Sucursal,
-    vg.Nombre_Gerente, co.Fecha_Compra, co.Valor
-FROM Compra co
-LEFT JOIN Vista_Cliente vc ON co.ID_Cliente = vc.ID_Cliente
-LEFT JOIN VistaGerente vg ON co.ID_Sucursal = vg.ID;
+CREATE VIEW Vista_Compra AS
+SELECT 
+    c.ID_Compra, c.ID_Cliente, c.ID_Sucursal, c.Fecha_Compra, c.Valor, vg.id,
+    vg.nombresucursal, vg.nombreemp, vc.identificacion, vc.nombre, vc.ciudad,
+    vc.fecha_registro, vc.Telefono
+FROM Compra c
+JOIN VistaGerente vg ON c.ID_Sucursal = vg.id
+JOIN Vista_Cliente vc ON c.ID_Cliente = vc.identificacion
+ORDER BY c.ID_Compra ASC;
+

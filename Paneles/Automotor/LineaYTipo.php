@@ -20,6 +20,12 @@
 <meta charset="UTF-8">
     <?php include '../../config/encabezado.php';?>
     <title>Linea y Tipo</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>

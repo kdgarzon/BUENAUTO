@@ -19,6 +19,12 @@
 <head>
     <?php include '../../config/encabezado.php';?>
     <title>Gestion de Empleados</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>
@@ -51,7 +57,7 @@
                 </select>
             </div>
             <?php
-                $sqlSucursal = "SELECT ID, Nombre FROM Sucursal";
+                $sqlSucursal = "SELECT ID, NombreSucursal FROM Sucursal";
                 $Sucursales = pg_query($link, $sqlSucursal) or die('La consulta de sucursales fallo: ' . pg_last_error($link));
             ?>
             <div class="col-md-4"><!--Lista desplegable-->

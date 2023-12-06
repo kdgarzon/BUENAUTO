@@ -19,6 +19,12 @@
 <head>
     <?php include '../../config/encabezado.php';?>
     <title>Gestion de Usuarios</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>
@@ -74,11 +80,7 @@
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT u.id, e.nombre, u.username, u.pass, r.rol
-                    FROM Usuario u
-                    JOIN Empleado e ON u.Id_empleado = e.codigo
-                    JOIN Rol r ON u.Id_rol = r.id
-                    ORDER BY u.id ASC";
+                $consultar = "SELECT * FROM Vista_Usuario;";
                 $registros = pg_query($link, $consultar) or die('La consulta de usuarios fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>

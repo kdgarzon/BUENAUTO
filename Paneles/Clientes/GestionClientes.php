@@ -19,6 +19,12 @@
 <head>
     <?php include '../../config/encabezado.php';?>
     <title>Gestion de Clientes</title>
+    <style>
+        .EntradaDatos, .informacion{
+            margin-left: 8%;
+            margin-right: 8%;
+        }
+    </style>
 </head>
 <body>
     <?php include '../../config/header.php';?>
@@ -73,10 +79,7 @@
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT c.identificacion, c.nombre, cr.ciudad, c.fecha_registro
-                    FROM Cliente c
-                    JOIN Ciudad_Residencia cr ON c.id_ciudad = cr.id
-                    ORDER BY c.identificacion ASC";
+                $consultar = "SELECT * FROM Vista_Cliente;";
                 $registros = pg_query($link, $consultar) or die('La consulta de clientes fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>

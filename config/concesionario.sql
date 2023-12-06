@@ -42,7 +42,7 @@ CREATE TABLE Empleado(
 	ID_cargo INT,
 	ID_Sucursal INT,
 	Identificacion INT NOT NULL,
-	Nombre varchar(35) NOT NULL,
+	NombreEmp varchar(35) NOT NULL,
 	Fecha_nacimiento DATE NOT NULL,
 	Fecha_ingreso DATE NOT NULL,
 	Salario FLOAT NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE Empleado(
 la tabla Empleado se establecerá en NULL. Así mismo, si se actualiza algún dato en la tabla Cargo
 se actualizará automáticamente en la tabla Empleado*/
 
-INSERT INTO Empleado (ID_cargo, Identificacion, Nombre, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 1000472996, 'Karen Garzon', '2002-10-17', '2023-06-20', 2500000, 301);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 1000472996, 'Karen Garzon', '2002-10-17', '2023-06-20', 2500000, 301);
 UPDATE Sucursal SET ID_Gerente = 1001 WHERE Nombre = 'Sucursal La Floresta';
 
 CREATE TABLE Telefono_Emp(
@@ -380,20 +380,21 @@ CREATE VIEW VistaGerente AS
 SELECT
     s.ID,
     s.Nombre AS Nombre_Sucursal,
-    e.Nombre AS Nombre_Gerente
+    e.NombreEmp AS Nombre_Gerente
 FROM Sucursal s
 LEFT JOIN Empleado e ON s.ID_Gerente = e.Codigo;
 
 --Vista para mostrar el nombre de la sucursal, el telefono y el cargo en la tabla empleado con base a su ID
 CREATE OR REPLACE VIEW Vista_Empleado AS
-SELECT
-    e.Codigo AS ID_Empleado, e.ID_cargo, e.ID_Sucursal, e.Identificacion,
-    e.Nombre AS Nombre_Empleado, e.Fecha_nacimiento, e.Fecha_ingreso, e.Salario,
-	s.Nombre AS Nombre_Sucursal, c.Cargo AS Nombre_Cargo, t.Telefono
+SELECT 
+    e.codigo, e.identificacion, e.nombreemp, c.cargo, s.nombre, e.fecha_nacimiento, 
+    e.fecha_ingreso, e.salario, t.telefono
 FROM Empleado e
-LEFT JOIN Sucursal s ON e.ID_Sucursal = s.ID
-LEFT JOIN Cargo c ON e.ID_cargo = c.ID
-LEFT JOIN Telefono_Emp t ON e.Codigo = t.ID_Empleado;
+JOIN Cargo c ON e.id_cargo = c.id
+JOIN Sucursal s ON e.id_sucursal = s.id
+JOIN Telefono_Emp t ON e.codigo = t.id_empleado
+ORDER BY e.codigo ASC;
+
 
 --Vista para visualizar la tabla Usuario de manera cómoda
 CREATE VIEW Vista_Usuario AS

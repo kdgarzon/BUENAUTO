@@ -105,12 +105,7 @@
                 <th>Acciones</th>
             </thead>
             <?php
-                $consultar = "SELECT e.codigo, e.identificacion, e.nombre, c.cargo, s.nombre, e.fecha_nacimiento, e.fecha_ingreso, e.salario, t.telefono
-                    FROM Empleado e
-                    JOIN Cargo c ON e.id_cargo = c.id
-                    JOIN Sucursal s ON e.id_sucursal = s.id
-                    JOIN Telefono_Emp t ON e.codigo = t.id_empleado
-                    ORDER BY e.codigo ASC";
+                $consultar = "SELECT * FROM Vista_Empleado";
                 $registros = pg_query($link, $consultar) or die('La consulta de empleados fallo: ' . pg_last_error($link));
 
                 while($fila = pg_fetch_array($registros)){ ?>
@@ -152,7 +147,7 @@
             $Telefono = $_POST['txtTelefono'];
 
             //Formulo la consulta SQL
-            $sql = "INSERT INTO empleado (id_cargo, id_sucursal, identificacion, nombre, fecha_nacimiento, fecha_ingreso, salario) 
+            $sql = "INSERT INTO empleado (id_cargo, id_sucursal, identificacion, nombreEmp, fecha_nacimiento, fecha_ingreso, salario) 
                 VALUES ('$Cargo', '$Sucursal', '$Identificacion', '$Nombre', '$FechaNac', '$FechaIngr', '$Salario' ) RETURNING codigo;";
             $respuesta = pg_query($link, $sql) or die('La inserción de datos fallo: ' . pg_last_error($link));
 

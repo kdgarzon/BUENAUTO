@@ -28,11 +28,60 @@
 </head> 
 <body>
     <?php include '../../config/header.php';?> 
+    
     <h1 class = "titulo_principal">Gestión de Roles y Cargos</h1>
+    <!-- Formulario para agregar cargos -->
+    <div class="EntradaDatos">
+        <form action="GestionRolesCargos.php" method="POST" name="formularioCargo" class="row g-3">
+            <h2 class="tit">Cargos</h2>
+            <div class="col-md-4">
+                <label for="txtCargo" class="form-label">Nombre del Cargo: </label>
+                <input type="text" class="form-control" placeholder="Cargo..." id="txtCargo" name="txtCargo" required>
+            </div>
+            <div class="col-md-2" id="botonCargo">
+                <input type="submit" class="btn" style="background-color:#A6FB7E" value="INSERTAR" id="btnAgregarCargo" name="btnAgregarCargo">
+            </div>
+            <div class="col-md-2" id="botonBorrarCargo">
+                <input type="reset" class="btn" style="background-color:#F6DB4C" value="RESTABLECER CAMPOS" id="btnBorrarCargo" name="btnBorrarCargo">
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla para mostrar cargos existentes -->
+    <div class="informacion">
+        <h2 class="tit">Registros de Cargos</h2>
+        <table class="table table-striped">
+            <thead class="table-light">
+                <th>ID Cargo</th>
+                <th>Nombre del Cargo</th>  
+                <th>Acciones</th>             
+            </thead>
+            <?php
+                $consultarCargo = "SELECT c.id, c.cargo FROM cargo c ORDER BY c.id ASC;";
+                $registrosCargo = pg_query($link, $consultarCargo) or die('La consulta de cargos falló: ' . pg_last_error($link));
+
+                while($filaCargo = pg_fetch_array($registrosCargo)){ ?>
+                    <tr>
+                        <td><?= $filaCargo[0]; ?></td>
+                        <td><?= $filaCargo[1]; ?></td>                       
+                        <td>
+                            <a href="ModificarCargo.php?id=<?= $filaCargo[0] ?>" class="btn btn-warning" style = "margin-right:7px;">
+                                <img src = "../../Imagenes/editar.png" width = "20px" height = "20px">
+                            </a>
+                            <a href="GestionRolesCargos.php?idCargo=<?= $filaCargo[0] ?>&accion=eliminarCargo" class="btn btn-danger">
+                                <img src = "../../Imagenes/eliminar.png" width = "20px" height = "20px">
+                            </a>
+                        </td>
+                    </tr>
+                <?php } ?>
+        </table>
+    </div>
+    <hr class="linea">
+    </div>
     <hr class="linea">
     <div class = "EntradaDatos">
         <form action="GestionRolesCargos.php" method = "POST" name = "formulario" class = "row g-3">
-            <h2 class = "tit">Información general</h2>
+            <h2 class = "tit">Roles</h2>
             <div class="col-md-4">
                 <label for="txtRol" class="form-label">Rol del empleado: </label>
                 <input type="text" class="form-control" placeholder="Rol..." id="txtRol" name="txtRol" required>
@@ -75,6 +124,7 @@
                 <?php } ?>
         </table>
     </div>
+    
     <?php include '../../config/footer.php';?>
     <?php
         //INSERTAR DATOS
@@ -171,6 +221,73 @@
         }
     ?>
   
+  <?php
+    //INSERTAR DATOS PARA CARGOS
+    if(isset($_POST['btnAgregarCargo'])){
+        $Cargo = $_POST['txtCargo'];
+        $sqlCargo = "INSERT INTO cargo (cargo) VALUES ('$Cargo');";
+        $respuestaCargo = pg_query($link, $sqlCargo);
+        if($respuestaCargo){
+            echo "<script type='text/javascript'>
+                Swal.fire({
+                    title: '¡Cargo insertado correctamente!',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setTimeout(function() {
+                    window.location.href = 'GestionRolesCargos.php';
+                }, 1500);
+            </script>";
+        } else {
+            echo "<script type='text/javascript'>
+                Swal.fire({
+                    title: 'ERROR!!',
+                    text :'Algo salió mal y el cargo no pudo ser insertado. Intente de nuevo.',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 1800
+                });
+                setTimeout(function() {
+                    window.location.href = 'GestionRolesCargos.php';
+                }, 1800);
+            </script>";
+        }
+    }
+
+    //ELIMINAR DATOS PARA CARGOS
+    if(isset($_GET['idCargo'])){
+        $ID_c = $_GET['idCargo'];
+        $sqlEliminarCargo = "DELETE FROM cargo WHERE id = '".$ID_c."'";
+        $respuestaEliminarCargo = pg_query($link, $sqlEliminarCargo);
+        if($respuestaEliminarCargo){
+            echo "<script type='text/javascript'>
+                Swal.fire({
+                    title: '¡Cargo eliminado correctamente!',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1800
+                });
+                setTimeout(function() {
+                    window.location.href = 'GestionRolesCargos.php';
+                }, 1800);
+            </script>";
+        } else {
+            echo "<script type='text/javascript'>
+                Swal.fire({
+                    title: 'ERROR!!',
+                    text: 'El cargo no pudo ser eliminado. Intente de nuevo.',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 1800
+                });
+                setTimeout(function() {
+                    window.location.href = 'GestionRolesCargos.php';
+                }, 1800);
+            </script>";
+        }
+    }
+?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 

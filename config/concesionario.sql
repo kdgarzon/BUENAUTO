@@ -21,6 +21,7 @@ CREATE TABLE Cargo(
     PRIMARY KEY (ID)
 );
 INSERT INTO Cargo (Cargo) VALUES ('Gerente');
+INSERT INTO Cargo (Cargo) VALUES ('Empleado');
 
 CREATE SEQUENCE Ciudad_Auto
     START 801
@@ -54,7 +55,18 @@ CREATE TABLE Sucursal(
     PRIMARY KEY (ID),
     FOREIGN KEY (CiudadSucursal) REFERENCES Ciudad_Residencia(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal costeña', 801);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Barranquilla', 801);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Cali', 802);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Cartagena', 803);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Leticia', 804);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Manizales', 805);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Medellín', 806);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Pasto', 807);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Popayan', 808);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Riohacha', 809);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Sincelejo', 810);
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal de Villavicencio', 811);
+
 /*Se inserta solo el nombre porque después de creado el empleado se hará un UPDATE para el ID_Gerente*/
 
 CREATE SEQUENCE Empleado_Auto
@@ -77,7 +89,28 @@ la tabla Empleado se establecerá en NULL. Así mismo, si se actualiza algún da
 se actualizará automáticamente en la tabla Empleado*/
 
 INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 1000472996, 'Karen Garzon', '2002-10-17', '2023-06-20', 2500000, 301);
-UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal costeña';
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 5958329, 'Carlos Rodriguez', '1995-03-21', '2018-07-10', 2800000, 302);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 65792946, 'Laura Hernandez', '1988-12-05', '2017-08-15', 3000000, 303);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 5478213, 'Juan Perez', '1990-06-12', '2023-09-25', 2600000, 304);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 42578962, 'Maria Gutierrez', '1987-09-28', '2021-10-05', 2700000, 305);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 9458762, 'Andres Martinez', '1998-02-14', '2022-11-12', 2900000, 306);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 7985642, 'Gabriel Ramirez', '1993-08-08', '2023-12-01', 2800000, 307);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 8456324, 'Paola Gonzalez', '1985-05-15', '2022-01-07', 3000000, 308);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 1000378956, 'Ricardo Vargas', '1996-11-20', '2020-02-15', 2600000, 309);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 9856320, 'Camila Lopez', '1989-04-02', '2019-03-22', 2700000, 310);
+INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 124501, 'Alejandro Castro', '1994-01-10', '2015-04-30', 2900000, 311);
+
+UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal de Barranquilla';
+UPDATE Sucursal SET ID_Gerente = 1002 WHERE nombresucursal = 'Sucursal de Cali';
+UPDATE Sucursal SET ID_Gerente = 1003 WHERE nombresucursal = 'Sucursal de Cartagena';
+UPDATE Sucursal SET ID_Gerente = 1004 WHERE nombresucursal = 'Sucursal de Leticia';
+UPDATE Sucursal SET ID_Gerente = 1005 WHERE nombresucursal = 'Sucursal de Manizales';
+UPDATE Sucursal SET ID_Gerente = 1006 WHERE nombresucursal = 'Sucursal de Medellín';
+UPDATE Sucursal SET ID_Gerente = 1007 WHERE nombresucursal = 'Sucursal de Pasto';
+UPDATE Sucursal SET ID_Gerente = 1008 WHERE nombresucursal = 'Sucursal de Popayan';
+UPDATE Sucursal SET ID_Gerente = 1009 WHERE nombresucursal = 'Sucursal de Riohacha';
+UPDATE Sucursal SET ID_Gerente = 1010 WHERE nombresucursal = 'Sucursal de Sincelejo';
+UPDATE Sucursal SET ID_Gerente = 1011 WHERE nombresucursal = 'Sucursal de Villavicencio';
 
 CREATE TABLE Telefono_Emp(
 	ID_Empleado INT NOT NULL,
@@ -124,7 +157,9 @@ CREATE TABLE Tipo(
 	Tipo varchar(20) NOT NULL,
     PRIMARY KEY (ID)
 );
+INSERT INTO Tipo (Tipo) VALUES ('Automóvil');
 INSERT INTO Tipo (Tipo) VALUES ('Camión');
+INSERT INTO Tipo (Tipo) VALUES ('Camioneta');
 
 CREATE SEQUENCE Color_Auto
     START 601
@@ -134,7 +169,16 @@ CREATE TABLE Color(
 	Color varchar(15) NOT NULL,
     PRIMARY KEY (ID)
 );
-INSERT INTO Color (Color) VALUES ('Plata');
+INSERT INTO Color (Color) VALUES ('Amarillo');
+INSERT INTO Color (Color) VALUES ('Azul');
+INSERT INTO Color (Color) VALUES ('Beige');
+INSERT INTO Color (Color) VALUES ('Blanco');
+INSERT INTO Color (Color) VALUES ('Gris plateado');
+INSERT INTO Color (Color) VALUES ('Gris oscuro');
+INSERT INTO Color (Color) VALUES ('Marrón');
+INSERT INTO Color (Color) VALUES ('Negro');
+INSERT INTO Color (Color) VALUES ('Rojo');
+INSERT INTO Color (Color) VALUES ('Verde');
 
 CREATE SEQUENCE Marca_Auto
     START 701
@@ -144,7 +188,16 @@ CREATE TABLE Marca(
 	Marca varchar(50) NOT NULL,
     PRIMARY KEY (ID)
 );
+INSERT INTO Marca (Marca) VALUES ('Audi');
+INSERT INTO Marca (Marca) VALUES ('BMW');
 INSERT INTO Marca (Marca) VALUES ('Chevrolet');
+INSERT INTO Marca (Marca) VALUES ('Ford');
+INSERT INTO Marca (Marca) VALUES ('Honda');
+INSERT INTO Marca (Marca) VALUES ('Hyundai');
+INSERT INTO Marca (Marca) VALUES ('Mercedes-Benz');
+INSERT INTO Marca (Marca) VALUES ('Nissan');
+INSERT INTO Marca (Marca) VALUES ('Toyota');
+INSERT INTO Marca (Marca) VALUES ('Volkswagen');
 
 CREATE TABLE Automotor(
 	Numero_Chasis VARCHAR(20) NOT NULL,
@@ -362,7 +415,7 @@ SELECT
 FROM Empleado e
 JOIN Cargo c ON e.id_cargo = c.id
 JOIN Sucursal s ON e.id_sucursal = s.id
-JOIN Telefono_Emp t ON e.codigo = t.id_empleado
+LEFT JOIN Telefono_Emp t ON e.codigo = t.id_empleado
 ORDER BY e.codigo ASC;
 
 
@@ -448,6 +501,67 @@ AFTER INSERT ON Cliente
 FOR EACH ROW
 EXECUTE FUNCTION fechas();
 
+--TRIGGER DE CONSOLIDADO MENSUAL Y ANUAL DE MARCAS MAS VENDIDAS
+CREATE TABLE CantMarcasVendidas(
+    ID_marcasVen SERIAL PRIMARY KEY NOT NULL,
+    Sucursal_Venta int not null,
+    MarcaVendida varchar(15) not null,
+    Identificacion_Interna varchar(10),
+    placaAuto varchar(8),
+    Cantidad int not null
+);
+
+CREATE OR REPLACE FUNCTION ExtraerAutomotor(id_automotor VARCHAR(20), OUT marca VARCHAR(50), OUT identificacion_interna VARCHAR(10), OUT placa VARCHAR(8))
+RETURNS SETOF RECORD AS $$
+BEGIN
+    RETURN QUERY
+    SELECT m.Marca, a.identificacion_interna, a.placa
+    FROM Automotor a
+    JOIN Marca m ON a.ID_Marca = m.ID
+    WHERE a.Numero_Chasis = id_automotor;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION marcasSolicitadas() RETURNS TRIGGER AS $$
+DECLARE
+    info_automotor RECORD;
+    mesRegistro INT;
+    id_sucursal_compra INT;
+BEGIN
+    SELECT ID_Sucursal INTO id_sucursal_compra
+    FROM Compra
+    WHERE ID_Cliente = (SELECT ID_Cliente FROM Adquirir WHERE ID_Automotor = NEW.ID_Automotor LIMIT 1);
+
+    IF id_sucursal_compra IS NOT NULL THEN
+        DECLARE
+            adquirir_data RECORD;
+        BEGIN
+            SELECT * INTO adquirir_data
+            FROM Adquirir
+            WHERE ID_Automotor = NEW.ID_Automotor;
+
+            SELECT * INTO info_automotor
+            FROM ExtraerAutomotor(adquirir_data.ID_Automotor);
+
+            mesRegistro := EXTRACT(MONTH FROM NEW.Fecha_Compra);
+
+            INSERT INTO CantMarcasVendidas(Sucursal_Venta, MarcaVendida, Identificacion_Interna, placaAuto, Cantidad)
+            VALUES (id_sucursal_compra, info_automotor.marca, info_automotor.identificacion_interna, info_automotor.placa, 1)
+            ON CONFLICT (Sucursal_Venta, MarcaVendida, Identificacion_Interna, placaAuto)
+            DO UPDATE SET Cantidad = CantMarcasVendidas.Cantidad + 1;
+        END;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_marcasmensuales
+AFTER INSERT ON Adquirir
+FOR EACH ROW
+EXECUTE FUNCTION marcasSolicitadas();
 
 
 /*CREATE OR REPLACE FUNCTION clientesNuevos(fecha_registro DATE) RETURNS TABLE (

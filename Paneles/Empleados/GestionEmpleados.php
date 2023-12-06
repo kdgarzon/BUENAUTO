@@ -66,7 +66,7 @@
                     <option selected>Seleccionar...</option>
                     <?php
                     while ($row_sucursal = pg_fetch_object($Sucursales)) { ?>
-                        <option value = "<?php echo $row_sucursal->id ?>"><?php echo $row_sucursal->nombre; ?></option>;
+                        <option value = "<?php echo $row_sucursal->id ?>"><?php echo $row_sucursal->nombresucursal; ?></option>;
                     <?php } 
                     ?>
                 </select>

@@ -38,7 +38,7 @@
                 <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre..." required>
             </div>
             <?php
-                $sqlEmpleados = "SELECT Codigo, NombreEmp FROM Empleado WHERE ID_cargo = 201";
+                $sqlEmpleados = "SELECT codigo, NombreEmp FROM Empleado WHERE ID_cargo = 201";
                 $Empleados = pg_query($link, $sqlEmpleados) or die('La consulta de empleados fallo: ' . pg_last_error($link));
             ?>
             <div class="col-md-6"><!--Lista desplegable-->
@@ -47,7 +47,7 @@
                     <option selected>Seleccionar...</option>
                     <?php
                     while ($row_emp = pg_fetch_object($Empleados)) { ?>
-                        <option value = "<?php echo $row_emp->codigo ?>"><?php echo $row_emp->nombre; ?></option>;
+                        <option value = "<?php echo $row_emp->codigo ?>"><?php echo $row_emp->nombreemp; ?></option>;
                     <?php } 
                     ?>
                 </select>

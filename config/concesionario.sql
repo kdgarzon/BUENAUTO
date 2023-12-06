@@ -99,7 +99,7 @@ INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fec
 INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 9856320, 'Camila Lopez', '1989-04-02', '2019-03-22', 2700000, 310);
 INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 124501, 'Alejandro Castro', '1994-01-10', '2015-04-30', 2900000, 311);
 
-UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal de Barranquilla';
+/*UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal de Barranquilla';
 UPDATE Sucursal SET ID_Gerente = 1002 WHERE nombresucursal = 'Sucursal de Cali';
 UPDATE Sucursal SET ID_Gerente = 1003 WHERE nombresucursal = 'Sucursal de Cartagena';
 UPDATE Sucursal SET ID_Gerente = 1004 WHERE nombresucursal = 'Sucursal de Leticia';
@@ -109,7 +109,7 @@ UPDATE Sucursal SET ID_Gerente = 1007 WHERE nombresucursal = 'Sucursal de Pasto'
 UPDATE Sucursal SET ID_Gerente = 1008 WHERE nombresucursal = 'Sucursal de Popayan';
 UPDATE Sucursal SET ID_Gerente = 1009 WHERE nombresucursal = 'Sucursal de Riohacha';
 UPDATE Sucursal SET ID_Gerente = 1010 WHERE nombresucursal = 'Sucursal de Sincelejo';
-UPDATE Sucursal SET ID_Gerente = 1011 WHERE nombresucursal = 'Sucursal de Villavicencio';
+UPDATE Sucursal SET ID_Gerente = 1011 WHERE nombresucursal = 'Sucursal de Villavicencio';*/
 
 CREATE TABLE Telefono_Emp(
 	ID_Empleado INT NOT NULL,
@@ -120,7 +120,7 @@ CREATE TABLE Telefono_Emp(
 
 INSERT INTO Telefono_Emp (ID_Empleado, Telefono) VALUES (1001, 3142101);
 
-ALTER TABLE Sucursal ADD CONSTRAINT FK_Empleado FOREIGN KEY (ID_Gerente) REFERENCES Empleado(Codigo) ON UPDATE SET NULL ON DELETE SET NULL;
+/*ALTER TABLE Sucursal ADD CONSTRAINT FK_Empleado FOREIGN KEY (ID_Gerente) REFERENCES Empleado(Codigo) ON UPDATE SET NULL ON DELETE SET NULL;*/
 ALTER TABLE Empleado ADD CONSTRAINT FK_Sucursal FOREIGN KEY (ID_Sucursal) REFERENCES Sucursal(ID) ON UPDATE SET NULL ON DELETE SET NULL;
 
 CREATE SEQUENCE Linea_Auto
@@ -215,7 +215,7 @@ CREATE TABLE Automotor(
 	FOREIGN KEY(ID_Marca) REFERENCES Marca(ID) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY(SucursalDondeEsta) REFERENCES Sucursal(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Automotor (Numero_Chasis, ID_Color, ID_Linea, ID_Tipo, ID_Marca, Modelo, Identificacion_interna, Placa) 
+INSERT INTO Automotor (Numero_Chasis, ID_Color, ID_Linea, ID_Tipo, ID_Marca, Modelo, Identificacion_interna, Placa, SucursalDondeEsta) 
 	VALUES ('1HGCM82633A123456', 601, 401, 501, 701, 2020, 'ABC100', NULL, 303);
 
 
@@ -239,14 +239,14 @@ CREATE TABLE Telefono_Clie(
 );
 INSERT INTO Telefono_Clie (ID_Cliente, Telefono) VALUES (1000472996, 7184562);
 
-CREATE TABLE Adquirir(
+/*CREATE TABLE Adquirir(
 	ID_Cliente INT,
 	ID_Automotor VARCHAR(20),
     PRIMARY KEY (ID_Cliente, ID_Automotor),
 	FOREIGN KEY(ID_Cliente) REFERENCES Cliente(Identificacion) ON DELETE SET NULL ON UPDATE CASCADE,
 	FOREIGN KEY(ID_Automotor) REFERENCES Automotor(Numero_chasis) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Adquirir (ID_Cliente, ID_Automotor) VALUES (1000472996, '1HGCM82633A123456');
+INSERT INTO Adquirir (ID_Cliente, ID_Automotor) VALUES (1000472996, '1HGCM82633A123456');*/
 
 CREATE SEQUENCE Compra_Auto
     START 901
@@ -254,7 +254,7 @@ CREATE SEQUENCE Compra_Auto
 CREATE TABLE Compra(
 	ID_Compra INT DEFAULT nextval('Compra_Auto'),
     ID_Cliente INT,
-    ID_Auto INT,
+    ID_Auto VARCHAR,
     ID_Empleado INT,
     Fecha_Compra DATE NOT NULL,
 	Valor FLOAT NOT NULL,
@@ -263,7 +263,7 @@ CREATE TABLE Compra(
     FOREIGN KEY (ID_Auto) REFERENCES Automotor (Numero_Chasis) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (ID_Empleado) REFERENCES Empleado (Codigo) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Compra (ID_Cliente, ID_Auto, ID_Empleado, Fecha_Compra, Valor) VALUES (1000472996, '1HGCM82633A123456', 1000472996, '2023-11-03', 44500000);
+INSERT INTO Compra (ID_Cliente, ID_Auto, ID_Empleado, Fecha_Compra, Valor) VALUES (1000472996, '1HGCM82633A123456', 1001, '2023-11-03', 44500000);
 
 /*TRIGGERS*/
 
@@ -338,56 +338,6 @@ $$ LANGUAGE plpgsql;
 
 --SELECT * FROM datos_clientes_nuevos(10, 2023);
 
-/*CREATE OR REPLACE FUNCTION actualizarGerente()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Se verifica si la sucursal ya tiene un gerente asignado
-    IF NEW.ID_Gerente IS NOT NULL THEN
-        UPDATE Sucursal
-        SET ID_Gerente = NEW.Codigo
-        WHERE ID_Sucursal = NEW.ID_Sucursal;
-    ELSE
-        -- Si no hay gerente asignado, establecer ID_Gerente como NULL
-        UPDATE Sucursal
-        SET ID_Gerente = NULL
-        WHERE ID_Sucursal = NEW.ID_Sucursal;
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER actualizarGerenteSucursal
-AFTER INSERT ON Empleado
-FOR EACH ROW
-WHEN (NEW.ID_cargo = 201)
-EXECUTE FUNCTION actualizarGerente();
-
-/*TRIGGER QUE ASIGNA SUCURSAL A EMPLEADO*/
-/*Se aplica cuando el gerente de la sucursal aún no tiene una ID_Sucursal asignada
-En caso de que no encuentre una sucursal asignada el asignará el valor de NULL*/
-
-CREATE OR REPLACE FUNCTION asignarSucursalEmp()
-RETURNS TRIGGER AS $$
-BEGIN
-    
-    SELECT ID_Sucursal INTO NEW.ID_Sucursal
-    FROM Sucursal
-    WHERE ID_Gerente = NEW.ID_Gerente;
-
-    EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        NEW.ID_Sucursal := NULL;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigAsignarSucursalEmp
-BEFORE INSERT ON Empleado
-FOR EACH ROW
-EXECUTE FUNCTION asignarSucursalEmp();
-
 /*TRIGGER PARA CREAR UN NUEVO USUARIO DESPUÉS DE INSERTAR UN NUEVO EMPLEADO*/
 --Este trigger funcionará de manera que cuando se inserte un nuevo empleado se inserte
 --automáticamente un nuevo usuario con valores nulos que puedan ser modificados posteriormente
@@ -408,76 +358,13 @@ AFTER INSERT ON Empleado
 FOR EACH ROW
 EXECUTE FUNCTION InsertarUsuario();
 
-/*TRIGGER QUE SE ENCARGA DE ASIGNAR EL ID_SUCURSAL AL CLIENTE DEPENDIENDO DE DONDE FUE 
-SU PRIMERA COMPRA*/
-CREATE OR REPLACE FUNCTION PrimeraCompra()
-RETURNS TRIGGER AS $$
-DECLARE
-    id_PrimeraCompra INT;
-BEGIN
-    -- Obtener el ID de la sucursal de la primera compra del cliente
-    SELECT c.ID_Sucursal
-    INTO id_PrimeraCompra
-    FROM Compra c
-    WHERE c.ID_Cliente = NEW.Identificacion
-    ORDER BY c.Fecha_Compra
-    LIMIT 1;
-
-    -- Si no hay compras realizadas, obtener la sucursal según la fecha de registro del 
-	--cliente
-    IF id_PrimeraCompra IS NULL THEN
-        SELECT c.ID_Sucursal
-        INTO id_PrimeraCompra
-        FROM Compra c
-        WHERE c.ID_Cliente = NEW.Identificacion
-        ORDER BY c.Fecha_Compra
-        LIMIT 1;
-    END IF;
-
-    -- Asignar el ID de la sucursal al cliente
-    IF id_PrimeraCompra IS NOT NULL THEN
-        UPDATE Cliente
-        SET ID_Sucursal = id_PrimeraCompra
-        WHERE Identificacion = NEW.Identificacion;
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER triggerPrimeraCompra
-AFTER INSERT ON Compra
-FOR EACH ROW
-EXECUTE FUNCTION PrimeraCompra();
-
-/*PROCEDIMIENTOS ALMACENADOS*/
-/*Este procedimiento se encargará de calcular el valor total de todas las compras realizadas
-por un cliente sin importar el número de compras que haya realizado*/
-
-CREATE OR REPLACE FUNCTION TotalCompras()
-RETURNS TABLE (
-    ID_Cliente INT,
-    Valor_Total FLOAT
-) AS $$
-BEGIN
-    -- Seleccionar el ID del cliente y la suma de los valores de todas las compras
-    RETURN QUERY
-    SELECT ID_Cliente, COALESCE(SUM(Valor), 0) AS Valor_Total
-    FROM Compra
-    GROUP BY ID_Cliente;
-END;
-$$ LANGUAGE plpgsql;
-
---SELECT * FROM TotalCompras();*/
-
 /*VISTAS*/
 
 --Vista para mostrar el nombre del gerente junto a la tabla sucursal en base a su ID
 CREATE VIEW VistaGerente AS
 SELECT 
-    s.id, s.nombresucursal, e.nombreemp, c.ciudad
+    s.id, s.nombresucursal, c.ciudad
 FROM Sucursal s
-JOIN Empleado e ON s.id_gerente = e.codigo
 JOIN Ciudad_Residencia c ON s.CiudadSucursal = c.id
 ORDER BY s.id ASC;
 
@@ -506,12 +393,13 @@ ORDER BY u.id ASC;
 CREATE VIEW Vista_Automotor AS
 SELECT 
     a.numero_chasis, c.color, l.linea, t.tipo, m.marca, a.Modelo, 
-    a.Identificacion_interna, a.Placa
+    a.Identificacion_interna, a.Placa, s.nombresucursal
 FROM Automotor a
 JOIN Color c ON a.id_color = c.id
 JOIN Linea l ON a.id_linea = l.id
 JOIN Tipo t ON a.id_tipo = t.id
 JOIN Marca m ON a.id_marca = m.id
+JOIN Sucursal s ON a.SucursalDondeEsta = s.id
 ORDER BY a.numero_chasis ASC;
 
 --Vista general de cliente
@@ -525,7 +413,7 @@ JOIN Sucursal s ON c.id_sucursal = s.ID
 ORDER BY c.identificacion ASC;
 
 --Vista general de tabla adquirir
-CREATE VIEW Vista_Adquirir AS
+/*CREATE VIEW Vista_Adquirir AS
 SELECT 
     ad.ID_Cliente, ad.ID_Automotor, au.numero_chasis, au.color, au.linea,
     au.tipo, au.marca, au.modelo, au.identificacion_interna, au.placa, cl.nombre,
@@ -534,17 +422,17 @@ FROM Adquirir ad
 JOIN Vista_Automotor au ON ad.ID_Automotor = au.numero_chasis
 JOIN Vista_Cliente cl ON ad.ID_Cliente = cl.identificacion
 JOIN Telefono_Clie tc ON ad.ID_Cliente = tc.ID_Cliente
-ORDER BY ad.ID_Cliente, ad.ID_Automotor ASC;
+ORDER BY ad.ID_Cliente, ad.ID_Automotor ASC;*/
 
 --Vista general de tabla compra
 CREATE VIEW Vista_Compra AS
 SELECT 
-    c.ID_Compra, vc.nombre, vg.nombresucursal, c.Fecha_Compra, c.Valor, vg.nombreemp, vc.ciudad, vc.fecha_registro, vc.Telefono
+    c.ID_Compra, vc.nombre, ve.nombreemp, c.Fecha_Compra, c.Valor,  vc.ciudad, vc.fecha_registro
 FROM Compra c
-JOIN VistaGerente vg ON c.ID_Sucursal = vg.id
+JOIN Vista_Empleado ve ON c.ID_Empleado = ve.codigo
 JOIN Vista_Cliente vc ON c.ID_Cliente = vc.identificacion
+JOIN Vista_Automotor va ON c.ID_Auto = va.numero_chasis
 ORDER BY c.ID_Compra ASC;
-
 
 /*PROCEDIMIENTOS DE PRUEBA*/
 
@@ -612,34 +500,4 @@ FOR EACH ROW
 EXECUTE FUNCTION marcasSolicitadas();
 
 
-/*CREATE OR REPLACE FUNCTION clientesNuevos(fecha_registro DATE) RETURNS TABLE (
-    nombre_cliente VARCHAR(60),
-    fecha_registro DATE
-) AS $$
-BEGIN
-    RETURN QUERY SELECT nombre, fecha_registro FROM Cliente WHERE Identificacion = p_identificacion;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION 
-
-CREATE OR REPLACE FUNCTION calcular_gastos_administrativos() RETURNS TRIGGER AS $$
-    BEGIN
-        INSERT INTO Gastos_Administrativos(id_pedido, fecha_solicitud, valor) VALUES (NEW.id_pedido, NEW.fecha_pago, 50000);
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER calcular_gastos_administrativos AFTER INSERT ON Pedido FOR EACH ROW EXECUTE PROCEDURE calcular_gastos_administrativos();
-
--- Procedimiento para calcular gastos administrativos en un periodo de tiempo
-
-CREATE OR REPLACE FUNCTION calcular_gastos_administrativos_periodo(fecha_inicio DATE, fecha_fin DATE) RETURNS DECIMAL(10,2) AS $$
-    DECLARE
-        total DECIMAL(10,2);
-    BEGIN
-        SELECT SUM(valor) INTO total FROM Gastos_Administrativos WHERE fecha_solicitud BETWEEN fecha_inicio AND fecha_fin;
-        RETURN total;
-    END;
-$$ LANGUAGE plpgsql;*/
 

@@ -19,6 +19,11 @@
 <head>
     <?php include '../../config/encabezado.php';?>
     <title>Gestion de Automotores</title>
+    <script>
+        function convertirAMayusculas(input) {
+            input.value = input.value.toUpperCase();
+        }
+    </script>
     <style>
         .EntradaDatos, .informacion{
             margin-left: 8%;
@@ -35,7 +40,7 @@
             <h2 class = "tit">Información general</h2>
             <div class="col-md-4">
                 <label for="txtNumChasis" class="form-label">Número de chasis:</label>
-                <input type="text" class="form-control" id="txtNumChasis" name="txtNumChasis" placeholder="Número de chasis..." required>
+                <input type="text" class="form-control" id="txtNumChasis" name="txtNumChasis" placeholder="Número de chasis..." required oninput = "convertirAMayusculas(this)">
             </div>
             <?php
                 $sqlColores = "SELECT ID, Color FROM Color";

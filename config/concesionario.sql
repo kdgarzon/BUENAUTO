@@ -22,6 +22,27 @@ CREATE TABLE Cargo(
 );
 INSERT INTO Cargo (Cargo) VALUES ('Gerente');
 
+CREATE SEQUENCE Ciudad_Auto
+    START 801
+    INCREMENT 1;
+CREATE TABLE Ciudad_Residencia(
+	ID INT DEFAULT nextval('Ciudad_Auto'),
+	Ciudad varchar(25) NOT NULL,
+    PRIMARY KEY (ID)
+);
+
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Barranquilla');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Cali');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Cartagena');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Leticia');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Manizales');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Medellin');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Pasto');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Popayan');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Riohacha');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Sincelejo');
+INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Villavicencio');
+
 CREATE SEQUENCE Sucursal_Auto
     START 301
     INCREMENT 1;
@@ -29,9 +50,11 @@ CREATE TABLE Sucursal(
 	ID INT DEFAULT nextval('Sucursal_Auto'),
 	ID_Gerente INT,
 	NombreSucursal varchar(50) NOT NULL,
-    PRIMARY KEY (ID)
+    CiudadSucursal INT, 
+    PRIMARY KEY (ID),
+    FOREIGN KEY (CiudadSucursal) REFERENCES Ciudad_Residencia(ID) ON DELETE SET NULL ON UPDATE CASCADE
 );
-INSERT INTO Sucursal (nombresucursal) VALUES ('Sucursal La Floresta');
+INSERT INTO Sucursal (nombresucursal, CiudadSucursal) VALUES ('Sucursal costeña', 801);
 /*Se inserta solo el nombre porque después de creado el empleado se hará un UPDATE para el ID_Gerente*/
 
 CREATE SEQUENCE Empleado_Auto
@@ -54,7 +77,7 @@ la tabla Empleado se establecerá en NULL. Así mismo, si se actualiza algún da
 se actualizará automáticamente en la tabla Empleado*/
 
 INSERT INTO Empleado (ID_cargo, Identificacion, NombreEmp, Fecha_nacimiento, Fecha_ingreso, Salario, ID_Sucursal) VALUES (201, 1000472996, 'Karen Garzon', '2002-10-17', '2023-06-20', 2500000, 301);
-UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal La Floresta';
+UPDATE Sucursal SET ID_Gerente = 1001 WHERE nombresucursal = 'Sucursal costeña';
 
 CREATE TABLE Telefono_Emp(
 	ID_Empleado INT NOT NULL,
@@ -141,15 +164,6 @@ CREATE TABLE Automotor(
 INSERT INTO Automotor (Numero_Chasis, ID_Color, ID_Linea, ID_Tipo, ID_Marca, Modelo, Identificacion_interna, Placa) 
 	VALUES ('1HGCM82633A123456', 601, 401, 501, 701, 2020, 'ABC100', NULL);
 
-CREATE SEQUENCE Ciudad_Auto
-    START 801
-    INCREMENT 1;
-CREATE TABLE Ciudad_Residencia(
-	ID INT DEFAULT nextval('Ciudad_Auto'),
-	Ciudad varchar(25) NOT NULL,
-    PRIMARY KEY (ID)
-);
-INSERT INTO Ciudad_Residencia (Ciudad) VALUES ('Bogota D.C');
 
 CREATE TABLE Cliente(
 	Identificacion INT NOT NULL,
@@ -309,50 +323,6 @@ AFTER INSERT ON Compra
 FOR EACH ROW
 EXECUTE FUNCTION PrimeraCompra();
 
-/*TRIGGER PARA INSERTAR UN NUEVO TELEFONO DESPUÉS DE INSERTAR UN NUEVO EMPLEADO*/
-CREATE OR REPLACE FUNCTION TelefonoEmpleadoInsertar()
-RETURNS TRIGGER AS $$
-BEGIN
-    
-    IF NEW.Telefono IS NOT NULL THEN
-        INSERT INTO Telefono_Emp (ID_Empleado, Telefono)
-        VALUES (NEW.Codigo, NEW.Telefono);
-    ELSE
-        INSERT INTO Telefono_Emp (ID_Empleado, Telefono)
-        VALUES (NEW.Codigo, NULL);
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER triggerInsertarTel
-AFTER INSERT ON Empleado
-FOR EACH ROW
-EXECUTE FUNCTION TelefonoEmpleadoInsertar();
-
-/*TRIGGER PARA INSERTAR UN TELEFONO DE CLIENTE DESPUÉS DE INSERTAR UN NUEVO CLIENTE*/
-CREATE OR REPLACE FUNCTION TelefonoClienteInsertar()
-RETURNS TRIGGER AS $$
-BEGIN
-    
-    IF NEW.Telefono IS NOT NULL THEN
-        INSERT INTO Telefono_Clie (ID_Cliente, Telefono)
-        VALUES (NEW.Identificacion, NEW.Telefono);
-    ELSE
-        INSERT INTO Telefono_Clie (ID_Cliente, Telefono)
-        VALUES (NEW.Identificacion, NULL);
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER triggerInsertarTelCliente
-AFTER INSERT ON Cliente
-FOR EACH ROW
-EXECUTE FUNCTION TelefonoClienteInsertar();
-
 /*PROCEDIMIENTOS ALMACENADOS*/
 /*Este procedimiento se encargará de calcular el valor total de todas las compras realizadas
 por un cliente sin importar el número de compras que haya realizado*/
@@ -378,9 +348,10 @@ $$ LANGUAGE plpgsql;
 --Vista para mostrar el nombre del gerente junto a la tabla sucursal en base a su ID
 CREATE VIEW VistaGerente AS
 SELECT 
-    s.id, s.nombresucursal, e.nombreemp
+    s.id, s.nombresucursal, e.nombreemp, c.ciudad
 FROM Sucursal s
 JOIN Empleado e ON s.id_gerente = e.codigo
+JOIN Ciudad_Residencia c ON s.CiudadSucursal = c.id
 ORDER BY s.id ASC;
 
 --Vista para mostrar el nombre de la sucursal, el telefono y el cargo en la tabla empleado con base a su ID
@@ -440,11 +411,73 @@ ORDER BY ad.ID_Cliente, ad.ID_Automotor ASC;
 --Vista general de tabla compra
 CREATE VIEW Vista_Compra AS
 SELECT 
-    c.ID_Compra, c.ID_Cliente, c.ID_Sucursal, c.Fecha_Compra, c.Valor, vg.id,
-    vg.nombresucursal, vg.nombreemp, vc.identificacion, vc.nombre, vc.ciudad,
-    vc.fecha_registro, vc.Telefono
+    c.ID_Compra, vc.nombre, vg.nombresucursal, c.Fecha_Compra, c.Valor, vg.nombreemp, vc.ciudad, vc.fecha_registro, vc.Telefono
 FROM Compra c
 JOIN VistaGerente vg ON c.ID_Sucursal = vg.id
 JOIN Vista_Cliente vc ON c.ID_Cliente = vc.identificacion
 ORDER BY c.ID_Compra ASC;
+
+
+/*PROCEDIMIENTOS DE PRUEBA*/
+-- Crear una función que devuelve cantidad de clientes nuevos (Consolidado mensual)
+
+CREATE TABLE CantClientesNuevos(
+    ID_cant SERIAL PRIMARY KEY NOT NULL,
+    Mes int not null,
+    Cantidad int not null
+);
+
+ALTER TABLE CantClientesNuevos ADD CONSTRAINT uk_Mes UNIQUE (Mes);
+
+CREATE OR REPLACE FUNCTION fechas() RETURNS TRIGGER AS $$
+    DECLARE
+        mesRegistro INT;
+    BEGIN
+        mesRegistro := EXTRACT(MONTH FROM NEW.Fecha_Registro);
+
+        INSERT INTO CantClientesNuevos(Mes, Cantidad) VALUES (mesRegistro, 1)
+        ON CONFLICT (Mes) 
+        DO UPDATE SET Cantidad = CantClientesNuevos.Cantidad + 1;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_fechas
+AFTER INSERT ON Cliente
+FOR EACH ROW
+EXECUTE FUNCTION fechas();
+
+
+
+/*CREATE OR REPLACE FUNCTION clientesNuevos(fecha_registro DATE) RETURNS TABLE (
+    nombre_cliente VARCHAR(60),
+    fecha_registro DATE
+) AS $$
+BEGIN
+    RETURN QUERY SELECT nombre, fecha_registro FROM Cliente WHERE Identificacion = p_identificacion;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION 
+
+CREATE OR REPLACE FUNCTION calcular_gastos_administrativos() RETURNS TRIGGER AS $$
+    BEGIN
+        INSERT INTO Gastos_Administrativos(id_pedido, fecha_solicitud, valor) VALUES (NEW.id_pedido, NEW.fecha_pago, 50000);
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER calcular_gastos_administrativos AFTER INSERT ON Pedido FOR EACH ROW EXECUTE PROCEDURE calcular_gastos_administrativos();
+
+-- Procedimiento para calcular gastos administrativos en un periodo de tiempo
+
+CREATE OR REPLACE FUNCTION calcular_gastos_administrativos_periodo(fecha_inicio DATE, fecha_fin DATE) RETURNS DECIMAL(10,2) AS $$
+    DECLARE
+        total DECIMAL(10,2);
+    BEGIN
+        SELECT SUM(valor) INTO total FROM Gastos_Administrativos WHERE fecha_solicitud BETWEEN fecha_inicio AND fecha_fin;
+        RETURN total;
+    END;
+$$ LANGUAGE plpgsql;*/
 

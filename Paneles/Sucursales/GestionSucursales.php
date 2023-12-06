@@ -33,7 +33,7 @@
     <div class = "EntradaDatos">
         <form action="GestionSucursales.php" method = "POST" name = "formulario" class = "row g-3">
             <h2 class = "tit">Información general</h2>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label for="txtNombre" class="form-label">Nombre de la sucursal:</label>
                 <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre..." required>
             </div>
@@ -41,13 +41,28 @@
                 $sqlEmpleados = "SELECT Codigo, NombreEmp FROM Empleado WHERE ID_cargo = 201";
                 $Empleados = pg_query($link, $sqlEmpleados) or die('La consulta de empleados fallo: ' . pg_last_error($link));
             ?>
-            <div class="col-md-4"><!--Lista desplegable-->
+            <div class="col-md-6"><!--Lista desplegable-->
                 <label for="ListaEmpleados" class="form-label">Gerente asignado: </label>
                 <select id="ListaEmpleados" name="ListaEmpleados" class="form-select" required>
                     <option selected>Seleccionar...</option>
                     <?php
                     while ($row_emp = pg_fetch_object($Empleados)) { ?>
                         <option value = "<?php echo $row_emp->codigo ?>"><?php echo $row_emp->nombre; ?></option>;
+                    <?php } 
+                    ?>
+                </select>
+            </div>
+            <?php
+                $sqlCiudad = "SELECT ID, Ciudad FROM Ciudad_Residencia";
+                $Ciudades = pg_query($link, $sqlCiudad) or die('La consulta de ciudad fallo: ' . pg_last_error($link));
+            ?>
+            <div class="col-md-6"><!--Lista desplegable-->
+                <label for="ListaCiudades" class="form-label">Ciudad: </label>
+                <select id="ListaCiudades" name="ListaCiudades" class="form-select" required>
+                    <option selected>Seleccionar...</option>
+                    <?php
+                    while ($row_Ciudad = pg_fetch_object($Ciudades)) { ?>
+                        <option value = "<?php echo $row_Ciudad->id ?>"><?php echo $row_Ciudad->ciudad; ?></option>;
                     <?php } 
                     ?>
                 </select>
@@ -67,6 +82,7 @@
                 <th>ID sucursal</th>
                 <th>Nombre sucursal</th>
                 <th>Gerente</th>
+                <th>Ciudad</th>
                 <th>Acciones</th>
             </thead>
             <?php
@@ -78,6 +94,8 @@
                         <td><?= $fila[0]; ?></td>
                         <td><?= $fila[1]; ?></td>
                         <td><?= $fila[2]; ?></td>
+                        <td><?= $fila[3]; ?></td>
+
                         <td>
                             <a href="ModificarSucursal.php?id=<?= $fila[0] ?>" class="btn btn-warning" style = "margin-right:7px;">
                                 <img src = "../../Imagenes/editar.png" width = "20px" height = "20px">

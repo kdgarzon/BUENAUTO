@@ -18,32 +18,40 @@
 </head>
 <body>
     <div class="card_principal">
-        <?php
-            $sqlRoles = "SELECT ID, Rol FROM Rol";
-            $Roles = pg_query($link, $sqlRoles) or die('La consulta de roles fallo: ' . pg_last_error($link));
-        ?>
-        <form class = "entradas" method="POST" action="Login.php">
-            <h1 class="prin">Concesionario BUENAUTO</h1>
-            <h1 class="primer_titulo">Bienvenido!</h1>
-            <p class="subtitulo">Nos alegra tenerte de vuelta</p>
-            <div class="mb-3">
-                <label for="txtUser" class="form-label">Nombre de usuario: </label>
-                <input type="text" class="form-control" id="txtUser" name="txtUser" placeholder="Username..." required>
+        <div class="formulario">
+            <?php
+                $sqlRoles = "SELECT ID, Rol FROM Rol";
+                $Roles = pg_query($link, $sqlRoles) or die('La consulta de roles fallo: ' . pg_last_error($link));
+            ?>
+            <form class = "entradas" method="POST" action="Login.php">
+                <h1 class="primer_titulo">Bienvenido!</h1>
+                <div class="mb-3">
+                    <label for="txtUser" class="form-label">Nombre de usuario: </label>
+                    <input type="text" class="form-control" id="txtUser" name="txtUser" placeholder="Username..." required>
+                </div>
+                <div class="mb-3">
+                    <label for="txtPass" class="form-label">Contraseña: </label>
+                    <input type="password" class="form-control" id="txtPass" name="txtPass" placeholder="Password..." required>
+                </div>
+                <label for="listaRoles" class="form-label">Rol del usuario: </label>
+                <select name="listaRoles" id="listaRoles" class="form-select" required>
+                    <option selected>Seleccionar...</option>
+                    <?php
+                    while ($row_rol = pg_fetch_object($Roles)) { ?>
+                        <option value = "<?php echo $row_rol->id ?>"><?php echo $row_rol->rol; ?></option>;
+                    <?php } 
+                    ?>
+                </select>
+                <input type="submit" value="Iniciar Sesión" id="btnIngresar" name="btnIngresar">
+            </form>
+        </div>
+        <div class="imagen">
+            <img src="https://static.vecteezy.com/system/resources/previews/032/322/335/non_2x/ai-generated-city-vehicle-dealership-row-cars-traffic-drive-white-industrial-auto-travel-modern-automotive-new-automobile-street-road-lot-transportation-business-sales-parked-free-photo.jpg" alt="Fila de autos">
+            <div class="titulos_adicionales">
+                <h1 class="prin">BUENAUTO</h1>
+                <p class="subtitulo">Nos alegra tenerte de vuelta</p>
             </div>
-            <div class="mb-3">
-                <label for="txtPass" class="form-label">Contraseña: </label>
-                <input type="password" class="form-control" id="txtPass" name="txtPass" placeholder="Password..." required>
-            </div>
-            <select name="listaRoles" id="listaRoles" class="form-select" required>
-                <option selected>Seleccionar...</option>
-                <?php
-                while ($row_rol = pg_fetch_object($Roles)) { ?>
-                    <option value = "<?php echo $row_rol->id ?>"><?php echo $row_rol->rol; ?></option>;
-                <?php } 
-                ?>
-            </select>
-            <input type="submit" value="Iniciar Sesión" id="btnIngresar" name="btnIngresar">
-        </form>
+        </div>
     </div>
     <?php include '../config/footer.php';?>
     <?php

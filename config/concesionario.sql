@@ -323,50 +323,6 @@ AFTER INSERT ON Compra
 FOR EACH ROW
 EXECUTE FUNCTION PrimeraCompra();
 
-/*TRIGGER PARA INSERTAR UN NUEVO TELEFONO DESPUÉS DE INSERTAR UN NUEVO EMPLEADO*/
-CREATE OR REPLACE FUNCTION TelefonoEmpleadoInsertar()
-RETURNS TRIGGER AS $$
-BEGIN
-    
-    IF NEW.Telefono IS NOT NULL THEN
-        INSERT INTO Telefono_Emp (ID_Empleado, Telefono)
-        VALUES (NEW.Codigo, NEW.Telefono);
-    ELSE
-        INSERT INTO Telefono_Emp (ID_Empleado, Telefono)
-        VALUES (NEW.Codigo, NULL);
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER triggerInsertarTel
-AFTER INSERT ON Empleado
-FOR EACH ROW
-EXECUTE FUNCTION TelefonoEmpleadoInsertar();
-
-/*TRIGGER PARA INSERTAR UN TELEFONO DE CLIENTE DESPUÉS DE INSERTAR UN NUEVO CLIENTE*/
-CREATE OR REPLACE FUNCTION TelefonoClienteInsertar()
-RETURNS TRIGGER AS $$
-BEGIN
-    
-    IF NEW.Telefono IS NOT NULL THEN
-        INSERT INTO Telefono_Clie (ID_Cliente, Telefono)
-        VALUES (NEW.Identificacion, NEW.Telefono);
-    ELSE
-        INSERT INTO Telefono_Clie (ID_Cliente, Telefono)
-        VALUES (NEW.Identificacion, NULL);
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER triggerInsertarTelCliente
-AFTER INSERT ON Cliente
-FOR EACH ROW
-EXECUTE FUNCTION TelefonoClienteInsertar();
-
 /*PROCEDIMIENTOS ALMACENADOS*/
 /*Este procedimiento se encargará de calcular el valor total de todas las compras realizadas
 por un cliente sin importar el número de compras que haya realizado*/
